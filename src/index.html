@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" href="./images/appIcon.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles/checkingStyle.css">
+    <link rel="stylesheet" href="styles/input.css">
+    <link rel="stylesheet" href="styles/output.css">
+    <title>My Todoist</title>
+</head>
+<body class="sm:bg-orange-300 max-[640px]:bg-radial from-[var(--content-start-bg)] to-[var(--content-end-bg)]">
+    <header>
+        <div class="py-3 pl-1 pr-2 min-[410px]:p-3 sm:p-6 flex justify-between items-center font-sans sm:bg-[var(--header-bg)]">
+            <!-- profile and level -->
+            <div class="w-full flex items-center gap-1">
+                 <div class="max-w-72 sm:max-w-96 w-full flex items-center relative">
+                    <!-- profile picture -->
+                    <div class="relative group mr-2 sm:mr-4">
+                        <div class="min-w-12 w-12 h-12 min-h-12 sm:min-w-14 sm:w-14 sm:h-14 sm:min-h-14 rounded-full transition-all duration-300 active:scale-95 z-30 overflow-hidden">
+                           <input type="file" accept="image/*" id="profilePic_input" class="hidden">
+                            <label for="profilePic_input" class="w-full cursor-pointer">
+                                <img id="profilePic" class="w-full" src="images/testImg.jfif" alt="">
+                           </label>
+                        </div>
+                        <button id="deleteProfileBtn" class="absolute -bottom-1 -right-1 cursor-pointer scale-0 transition-all duration-300 group-hover:scale-100">
+                            
+                        </button>
+                    </div>
+    
+                     <div id="xpAmountContainer" class="w-full absolute top-0 sm:top-1 left-[58px] sm:left-[75px] flex text-sm">
+                        <div class="text-white opacity-80 flex">
+                            <p id="xpAmount_p">0</p>
+                            <p> /1000</p>
+                        </div>
+                        <div class="ml-1 flex gap-1 text-[var(--acc-level)] text-shadow-md text-shadow-blue-200 group">
+                            <p>Title:</p>
+                            <div id="titleContainer" class="w-40 h-[20px] cursor-pointer overflow-hidden translate-y-[0.5px] relative">
+                                <div class="absolute top-0 left-0 transition-all duration-300 oldTitle">New</div>
+                            </div>
+                        </div>
+                     </div>
+                     <div class="translate-y-2 w-full bg-[var(--xp-bar-remaining-bg)]/80 h-6 border-2 border-[var(--xp-bar-border)] rounded-md overflow-hidden">
+                         <div id="xp-bar" style="width: 100%;" class="z-0 h-full bg-[var(--xp-bar-bg)] rounded-md relative overflow-hidden"></div>
+                     </div>
+                 </div>
+                 <div>
+                    <p  class="translate-y-2 flex items-center gap-2 text-[var(--acc-level)] text-shadow-md text-shadow-blue-200 text-center text-sm sm:text-base">
+                        <span>LEVEL:</span>
+                        <span id="levelNumber">0</span>
+                    </p>
+                 </div>
+            </div>
+            <!-- App notification -->
+            <div class="flex items-center gap-4">
+                 <div id="app_notification" class="relative cursor-pointer group hidden sm:hidden">
+                    <div class="relative">
+                        <span class="absolute inline-flex h-full w-full animate-ping group-hover:animate-none group-hover:opacity-0 rounded-full bg-[vaR(--acc-level)] opacity-75"></span>
+                        <svg fill="var(--acc-level)" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="18px" height="18px" viewBox="0 0 45.311 45.311" xml:space="preserve"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g> <path d="M22.675,0.02c-0.006,0-0.014,0.001-0.02,0.001c-0.007,0-0.013-0.001-0.02-0.001C10.135,0.02,0,10.154,0,22.656 c0,12.5,10.135,22.635,22.635,22.635c0.007,0,0.013,0,0.02,0c0.006,0,0.014,0,0.02,0c12.5,0,22.635-10.135,22.635-22.635 C45.311,10.154,35.176,0.02,22.675,0.02z M22.675,38.811c-0.006,0-0.014-0.001-0.02-0.001c-0.007,0-0.013,0.001-0.02,0.001 c-2.046,0-3.705-1.658-3.705-3.705c0-2.045,1.659-3.703,3.705-3.703c0.007,0,0.013,0,0.02,0c0.006,0,0.014,0,0.02,0 c2.045,0,3.706,1.658,3.706,3.703C26.381,37.152,24.723,38.811,22.675,38.811z M27.988,10.578 c-0.242,3.697-1.932,14.692-1.932,14.692c0,1.854-1.519,3.356-3.373,3.356c-0.01,0-0.02,0-0.029,0c-0.009,0-0.02,0-0.029,0 c-1.853,0-3.372-1.504-3.372-3.356c0,0-1.689-10.995-1.931-14.692C17.202,8.727,18.62,5.29,22.626,5.29 c0.01,0,0.02,0.001,0.029,0.001c0.009,0,0.019-0.001,0.029-0.001C26.689,5.29,28.109,8.727,27.988,10.578z"></path> </g> </g></svg>
+                    </div>
+                    <div class="bg-black/60 whitespace-nowrap text-sm rounded text-white p-2 absolute top-5 right-0 opacity-0 group-hover:opacity-100 transition-all duration-300 flex gap-2">
+                        <span>this app uses local storage to store data!</span>
+                        <button onclick="hideAppNotification()" class="font-semibold cursor-pointer">dismiss</button>
+                    </div>
+                 </div>
+                 <!-- options icon -->
+                 <div onclick="toggleOptionsDisplay(),selectOptionMenu()" class="hidden min-[410px]:block cursor-pointer transition-all duration-300 hover:rotate-90 [&>svg]:w-[24px] [&>svg]:h-[24px] sm:[&>svg]:w-[28px] sm:[&>svg]:h-[28px]">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path fill-rule="evenodd" clip-rule="evenodd" d="M12.7848 0.449982C13.8239 0.449982 14.7167 1.16546 14.9122 2.15495L14.9991 2.59495C15.3408 4.32442 17.1859 5.35722 18.9016 4.7794L19.3383 4.63233C20.3199 4.30175 21.4054 4.69358 21.9249 5.56605L22.7097 6.88386C23.2293 7.75636 23.0365 8.86366 22.2504 9.52253L21.9008 9.81555C20.5267 10.9672 20.5267 13.0328 21.9008 14.1844L22.2504 14.4774C23.0365 15.1363 23.2293 16.2436 22.7097 17.1161L21.925 18.4339C21.4054 19.3064 20.3199 19.6982 19.3382 19.3676L18.9017 19.2205C17.1859 18.6426 15.3408 19.6754 14.9991 21.405L14.9122 21.845C14.7167 22.8345 13.8239 23.55 12.7848 23.55H11.2152C10.1761 23.55 9.28331 22.8345 9.08781 21.8451L9.00082 21.4048C8.65909 19.6754 6.81395 18.6426 5.09822 19.2205L4.66179 19.3675C3.68016 19.6982 2.59465 19.3063 2.07505 18.4338L1.2903 17.1161C0.770719 16.2436 0.963446 15.1363 1.74956 14.4774L2.09922 14.1844C3.47324 13.0327 3.47324 10.9672 2.09922 9.8156L1.74956 9.52254C0.963446 8.86366 0.77072 7.75638 1.2903 6.8839L2.07508 5.56608C2.59466 4.69359 3.68014 4.30176 4.66176 4.63236L5.09831 4.77939C6.81401 5.35722 8.65909 4.32449 9.00082 2.59506L9.0878 2.15487C9.28331 1.16542 10.176 0.449982 11.2152 0.449982H12.7848ZM12 15.3C13.8225 15.3 15.3 13.8225 15.3 12C15.3 10.1774 13.8225 8.69998 12 8.69998C10.1774 8.69998 8.69997 10.1774 8.69997 12C8.69997 13.8225 10.1774 15.3 12 15.3Z" fill="var(--acc-level)"></path> </g></svg>
+                 </div>
+            </div>
+        </div>
+        <div id="mobileOptionBtnContainer" class="hidden transition-all duration-300 bg-[var(--header-bg)] w-full h-0 pr-1 relative justify-end">
+            <div id="mobileOptionBtn" onclick="toggleOptionsDisplay(),selectOptionMenu()" class="cursor-pointer transition-all duration-300 hover:rotate-90 scale-y-0 [&>svg]:w-[20px] [&>svg]:h-[20px]">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path fill-rule="evenodd" clip-rule="evenodd" d="M12.7848 0.449982C13.8239 0.449982 14.7167 1.16546 14.9122 2.15495L14.9991 2.59495C15.3408 4.32442 17.1859 5.35722 18.9016 4.7794L19.3383 4.63233C20.3199 4.30175 21.4054 4.69358 21.9249 5.56605L22.7097 6.88386C23.2293 7.75636 23.0365 8.86366 22.2504 9.52253L21.9008 9.81555C20.5267 10.9672 20.5267 13.0328 21.9008 14.1844L22.2504 14.4774C23.0365 15.1363 23.2293 16.2436 22.7097 17.1161L21.925 18.4339C21.4054 19.3064 20.3199 19.6982 19.3382 19.3676L18.9017 19.2205C17.1859 18.6426 15.3408 19.6754 14.9991 21.405L14.9122 21.845C14.7167 22.8345 13.8239 23.55 12.7848 23.55H11.2152C10.1761 23.55 9.28331 22.8345 9.08781 21.8451L9.00082 21.4048C8.65909 19.6754 6.81395 18.6426 5.09822 19.2205L4.66179 19.3675C3.68016 19.6982 2.59465 19.3063 2.07505 18.4338L1.2903 17.1161C0.770719 16.2436 0.963446 15.1363 1.74956 14.4774L2.09922 14.1844C3.47324 13.0327 3.47324 10.9672 2.09922 9.8156L1.74956 9.52254C0.963446 8.86366 0.77072 7.75638 1.2903 6.8839L2.07508 5.56608C2.59466 4.69359 3.68014 4.30176 4.66176 4.63236L5.09831 4.77939C6.81401 5.35722 8.65909 4.32449 9.00082 2.59506L9.0878 2.15487C9.28331 1.16542 10.176 0.449982 11.2152 0.449982H12.7848ZM12 15.3C13.8225 15.3 15.3 13.8225 15.3 12C15.3 10.1774 13.8225 8.69998 12 8.69998C10.1774 8.69998 8.69997 10.1774 8.69997 12C8.69997 13.8225 10.1774 15.3 12 15.3Z" fill="var(--acc-level)"></path> </g></svg>
+            </div>
+            <div onclick="openMobileOptionBtn()" class="absolute -bottom-[30px] right-2 py-3 px-1 bg-[var(--header-bg)] rounded-l-md text-[var(--acc-level)] transform -rotate-90 flex items-center justify-center z-10">
+                <svg width="14px" height="14px" viewBox="0 0 1024 1024" class="icon" version="1.1" xmlns="http://www.w3.org/2000/svg" fill="var(--acc-level)" stroke="var(--acc-level)" stroke-width="102.4">
+
+<g id="SVGRepo_bgCarrier" stroke-width="0"/>
+
+<g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"/>
+
+<g id="SVGRepo_iconCarrier">
+
+<path d="M768 903.232l-50.432 56.768L256 512l461.568-448 50.432 56.768L364.928 512z" fill="var(--acc-level)"/>
+
+</g>
+
+                </svg>
+            </div>
+        </div>
+    </header>
+    <main class="font-sans min-h-svh sm:pt-10">
+        <section class="contentSize min-h-[534px] sm:bg-radial from-[var(--content-start-bg)] to-[var(--content-end-bg)] relative p-2 sm:p-10 mx-4 mb-4 overflow-hidden sm:rounded-lg contentShadow shadow-gray-900">
+            
+            <div id="ChallengesContainer" class="transition-all duration-300 relative" style="opacity: 100%;">
+                <div>
+                    <div class="flex justify-between items-end border-b-2 border-[var(--border-color)] pb-2 text-[var(--content-text)]">
+                        <h2 class="text-lg md:text-xl text-shadow-xs text-shadow-white flex gap-2 translate-y-1">
+                            <span>Challenges</span>
+                            <span id="mobileShowDate">- Today</span>
+                        </h2>
+                        <div onclick="showAddForm()" class="translate-y-1.5 md:translate-y-0.5 text-[var(--content-text)] cursor-pointer z-10"><strong>add+</strong></div>
+                    </div>
+                <div class="flex gap-2 py-2">
+                    <!-- tasks' day -->
+                    <div class="hidden md:block w-60 pr-2 overflow-hidden border-r-2 border-[var(--border-color)] static text-[var(--content-text)] z-10">
+                        <ul id="taskDates_container" class="w-full text-center">
+                        </ul>
+                    </div>
+                    <!-- task container  -->
+                    <div id="tasksContainer" class="tasksContainer">
+                       
+                    </div>
+                </div>
+                </div>
+            </div>
+            
+            <!-- click outside from -->
+            <div id="addFormOutside" onclick="showAddForm()" class="hidden bg-black/60 sm:bg-transparent w-full h-svh fixed top-0 left-0 z-20"></div>
+            <!-- add form -->
+            <form id="addForm" class="w-full sm:w-0 h-0 rounded-t-lg sm:rounded-full overflow-hidden bg-radial from-[var(--add-form-bg-start)] to-[var(--add-form-bg-end)] transition-all duartion-300 sm:absolute fixed sm:top-8 bottom-0 left-1/2 -translate-x-1/2 shadow-2xl shadow-gray-900/80 z-30" action="" submit.prevent ="">
+                <div class="pt-2 px-3 sm:px-5">
+                    <div class="w-full flex flex-nowrap justify-between text-xl text-[var(--content-text)]">
+                        <input class="formInput font-semibold placeholder:text-[var(--content-text)]/90 text-xl" placeholder="Task Title" type="text"  name="taskTitle" id="taskTitle">
+                        <div class="cursor-pointer" onclick="showAddForm()">X</div>
+                    </div>
+
+                    <!-- description input -->
+                    <input class="formInput w-full text-sm" placeholder="description" type="text" name="taskDesc" id="taskDesc">
+
+                    <!-- subtask inputs -->
+                    <div class="w-full mt-2 text-[var(--content-text)]">
+                        <button onclick="addSubTaskInput()" type="button" class="cursor-pointer flex items-center gap-1 group hover:gap-3 transition-all duration-300 active:scale-90">
+                            <div class="w-5 h-5 flex items-center justify-center text-xl border-2 border-transparent group-hover:border-[var(--content-text)] transition-all duration-300 rounded-full"><span class="-translate-y-[3px]">+</span></div>
+                            <span>Add Sub-Task</span>
+                        </button>
+                        <!-- subTasks container -->
+                        <div id="subTasksContainer" style="height: 0px;" class="w-full max-h-52 sm:pl-6 mb-1 subTaskScrollbar transition-all duration-300 flex flex-col gap-1">
+                        </div>
+                    </div>
+
+                    <!-- date input -->
+                     <div class="flex flex-col min-[400px]:flex-row min-[400px]:justify-start min-[400px]:items-center gap-2 w-full whitespace-nowrap text-[var(--content-text)] mt-4 sm:mt-6 sm:mb-4 relative">
+                        <div class="w-fit flex gap-2">
+                            <p>Duo date: </p>
+                            <div class="w-40 bg-[var(--add-form-bg-end)] rounded-md relative">
+                                <button onclick="toggleDueDateDisplay()" type="button" class="w-full flex justify-between p-1 pl-2">
+                                    <span id="chosenDueDate">Today</span>
+                                    <span class="transform -rotate-90">
+                                        <svg width="12px" height="12px" viewBox="0 0 1024 1024" class="icon" version="1.1" xmlns="http://www.w3.org/2000/svg" fill="currentColor" stroke="currentColor" stroke-width="102.4">
+        
+        <g id="SVGRepo_bgCarrier" stroke-width="0"/>
+        
+        <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"/>
+        
+        <g id="SVGRepo_iconCarrier">
+        
+        <path d="M768 903.232l-50.432 56.768L256 512l461.568-448 50.432 56.768L364.928 512z" fill="currentColor"/>
+        
+        </g>
+        
+        </svg>
+                                    </span>
+                                </button>
+                                <div id="Duodate_options_container" class="hidden absolute top-9 left-0 w-full bg-[var(--add-form-bg-end)] rounded-lg overflow-hidden z-40">
+                                    <div class="h-40 overflow-x-hidden overflow-y-scroll dateScrollBar [&>div]:cursor-default [&>div]:hover:bg-[var(--add-form-bg-start)] [&>div]:py-1 [&>div]:px-2">
+                                        <div class="addFormDateValue">Today</div>
+                                        <div class="addFormDateValue">Sunday</div>
+                                        <div class="addFormDateValue">Monday</div>
+                                        <div class="addFormDateValue">Tuesday</div>
+                                        <div class="addFormDateValue">Wednesday</div>
+                                        <div class="addFormDateValue">Thursday</div>
+                                        <div class="addFormDateValue">Friday</div>
+                                        <div class="addFormDateValue">Saturday</div>
+                                        <div class="addFormDateValue">Custom date</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="custom_date_placeholder" class="opacity-0 cursor-default text-[var(--content-text)] absolute top-10 left-0 min-[400px]:top-0 min-[400px]:left-[245px] z-0 transition-all duration-500">Custom date</div>
+                        <input oninput="hidePlaceholder()" class="formInput hidden border-b-2 border-[var(--add-form-bg-end)] w-full max-w-[160px] z-10 origin-left scale-x-0 transition-all duration-500" type="text" name="taskDateInput" id="custom_date_input">
+                    </div>
+                    <div id="mobileCalender" class="sm:hidden absolute bottom-0 left-0 w-full h-0 bg-[var(--add-form-bg-start)] text-[var(--content-text)] overflow-y-auto rounded-t-lg border-2 border-b-0 border-[var(--add-form-bg-start)] transition-all duration-300 z-50 [&>div]:w-full [&>div]:text-center [&>div]:py-2 [&>div]:bg-[var(--add-form-bg-end)] [&>div]:first:rounded-t-lg">
+                        <div class="mobileCalenderValue">Today</div>
+                        <div class="mobileCalenderValue">Sunday</div>
+                        <div class="mobileCalenderValue">Monday</div>
+                        <div class="mobileCalenderValue">Tuesday</div>
+                        <div class="mobileCalenderValue">Wednesday</div>
+                        <div class="mobileCalenderValue">Thursday</div>
+                        <div class="mobileCalenderValue">Friday</div>
+                        <div class="mobileCalenderValue">Saturday</div>
+                        <div class="mobileCalenderValue">Custom date</div>
+                    </div>
+
+                    <!-- xp section -->
+                    <div class="flex items-center text-[var(--content-text)] mt-6 sm:mt-0">
+                        <div onclick="FormfillCheckbox(this), showXp()" class="w-fit cursor-pointer flex items-center gap-1 transition-all duration-300 group relative">
+                            <div class="w-[17px] h-[17px] absolute top-1 left-[4px] bg-[var(--checkbox-inactive)] rounded-full z-40"></div>
+                            <div class="w-6 h-6 rounded-full flex items-center justify-center checkboxFill z-50">
+                            </div>
+                            <p class="group-active:scale-95 transition-all duration-300">include XP</p>
+                        </div>
+                        <div id="xpInput" class="hidden items-center ml-2 opacity-0 transition-all duration-300">
+                            <input class="formNumberInput outline-0" placeholder="0" type="number" name="xpAmount" id="add_task_xp_amount">
+                            <div class="border-b-2 border-[var(--input-number-border)]">/ 1000</div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-2 my-2 relative">
+                        <div onclick="openPriorityContainer()" class="border border-[var(--border-color)] text-sm text-[var(--content-text)] hover:bg-[var(--priority-container-bg)] transition-all duration-300 rounded-md text-center pb-1 px-3 cursor-pointer">priority</div>
+                        <div id="chosen_priority" class="absolute -top-0 left-[74px]"></div>
+                        <!-- priority container -->
+                        <div id="priority_container" class="w-0 h-[65px] bg-[var(--priority-container-bg)] rounded-md absolute top-0 left-40 sm:top-7 sm:left-[92px] -translate-x-1/2 transformOrigin flex justify-center items-center gap-2 overflow-hidden transition-all duration-300">
+                        </div>
+                    </div>
+                </div>
+                <div class="py-2 px-5 flex justify-end border-t border-[var(--border-color)]">
+                    <button onclick="addTask()" type="button" class="py-1 px-3 rounded-md bg-blue-600 text-white font-semibold cursor-pointer hover:bg-blue-700/40 active:scale-95 transition-all duration-300">Accept Task</button>
+                </div>
+            </form>
+
+            
+            <!-- corner decorations -->
+            <div class="absolute -top-3 -left-3 text-white cornerSvgContainer hidden sm:block z-0"></div>
+            <div class="absolute -top-3 -right-3 transform rotate-90 text-white cornerSvgContainer hidden sm:block z-0"></div>
+            <div class="absolute -bottom-3 -right-3 transform rotate-180 text-white cornerSvgContainer hidden sm:block z-0"></div>
+            <div class="absolute -bottom-3 -left-3 transform -rotate-90 text-white cornerSvgContainer hidden sm:block z-0"></div>
+        </section>
+        <!-- options -->
+        <div id="optionsOutside" onclick="toggleOptionsDisplay()" class="hidden opacity-0 w-full h-svh bg-black/30 transition-all duration-300 fixed top-0 left-0 z-20"></div>
+        <div id="optionsContainer" class="hidden opacity-0 w-[95%] md:w-4/5 max-w-4xl py-2 px-4 rounded-md overflow-hidden bg-radial from-[var(--add-form-bg-start)] to-[var(--add-form-bg-end)] text-[var(--content-text)] transition-all duartion-300 absolute top-4 sm:top-20 left-1/2 -translate-x-1/2 -translate-y-10 shadow-2xl shadow-gray-900/80 z-30">
+            <div onclick="toggleOptionsDisplay()" class="w-full text-right text-lg cursor-pointer">X</div>
+            <div id="optionsCategoryContainer" class="grid grid-cols-3 border-b border-gray-300 text-center text-sm sm:text-base [&>div]:p-2 [&>div]:transition-all [&>div]:duration-300 [&>div]:border-b-2 [&>div]:cursor-pointer">
+                <div onclick="selectOptionMenu('App colors')" class="optionCategory border-transparent opacity-70">App colors</div>
+                <div onclick="selectOptionMenu('Account')" class="optionCategory border-transparent opacity-70">Account</div>
+                <div onclick="selectOptionMenu('App info')" class="optionCategory border-transparent opacity-70">App info</div>
+            </div>
+            <!-- options container -->
+            <div id="optionsInnerContainer" class="optionsInnerContainer optionsScrollbar mt-4">
+                
+            </div>
+        </div>
+
+    </main>
+    <footer id="mobileMenu" class="z-40 fixed bottom-0 left-0 bg-[var(--header-bg)] sm:hidden w-full h-[50px] grid grid-cols-2 pt-2 pb-1 px-3 border-t-2 border-[var(--footer-border)] text-[var(--content-text)] origin-bottom scale-y-100 transition-all duration-300">
+        <div onclick="toggleOptionsDisplay(),selectOptionMenu()" class="flex flex-col items-center text-xs">
+            <div class="[&>svg]:w-[20px] [&>svg]:h-[20px]">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path fill-rule="evenodd" clip-rule="evenodd" d="M12.7848 0.449982C13.8239 0.449982 14.7167 1.16546 14.9122 2.15495L14.9991 2.59495C15.3408 4.32442 17.1859 5.35722 18.9016 4.7794L19.3383 4.63233C20.3199 4.30175 21.4054 4.69358 21.9249 5.56605L22.7097 6.88386C23.2293 7.75636 23.0365 8.86366 22.2504 9.52253L21.9008 9.81555C20.5267 10.9672 20.5267 13.0328 21.9008 14.1844L22.2504 14.4774C23.0365 15.1363 23.2293 16.2436 22.7097 17.1161L21.925 18.4339C21.4054 19.3064 20.3199 19.6982 19.3382 19.3676L18.9017 19.2205C17.1859 18.6426 15.3408 19.6754 14.9991 21.405L14.9122 21.845C14.7167 22.8345 13.8239 23.55 12.7848 23.55H11.2152C10.1761 23.55 9.28331 22.8345 9.08781 21.8451L9.00082 21.4048C8.65909 19.6754 6.81395 18.6426 5.09822 19.2205L4.66179 19.3675C3.68016 19.6982 2.59465 19.3063 2.07505 18.4338L1.2903 17.1161C0.770719 16.2436 0.963446 15.1363 1.74956 14.4774L2.09922 14.1844C3.47324 13.0327 3.47324 10.9672 2.09922 9.8156L1.74956 9.52254C0.963446 8.86366 0.77072 7.75638 1.2903 6.8839L2.07508 5.56608C2.59466 4.69359 3.68014 4.30176 4.66176 4.63236L5.09831 4.77939C6.81401 5.35722 8.65909 4.32449 9.00082 2.59506L9.0878 2.15487C9.28331 1.16542 10.176 0.449982 11.2152 0.449982H12.7848ZM12 15.3C13.8225 15.3 15.3 13.8225 15.3 12C15.3 10.1774 13.8225 8.69998 12 8.69998C10.1774 8.69998 8.69997 10.1774 8.69997 12C8.69997 13.8225 10.1774 15.3 12 15.3Z" fill="var(--acc-level)"></path> </g></svg>
+                 </div>
+                 <span>options</span>
+        </div>
+        <div onclick="toggleMobileDatesContainer()" class="flex flex-col items-center text-xs">
+            <div class="[&>svg]:w-[20px] [&>svg]:h-[20px]">
+                <svg fill="var(--content-text)" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="64px" height="64px" viewBox="0 0 612 612" xml:space="preserve"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g> <g> <path d="M612,463.781c0-70.342-49.018-129.199-114.75-144.379c-10.763-2.482-21.951-3.84-33.469-3.84 c-3.218,0-6.397,0.139-9.562,0.34c-71.829,4.58-129.725,60.291-137.69,131.145c-0.617,5.494-0.966,11.073-0.966,16.734 c0,10.662,1.152,21.052,3.289,31.078C333.139,561.792,392.584,612,463.781,612C545.641,612,612,545.641,612,463.781z M463.781,561.797c-54.133,0-98.016-43.883-98.016-98.016s43.883-98.016,98.016-98.016s98.016,43.883,98.016,98.016 S517.914,561.797,463.781,561.797z"></path> <polygon points="482.906,396.844 449.438,396.844 449.438,449.438 396.844,449.438 396.844,482.906 482.906,482.906 482.906,449.438 482.906,449.438 "></polygon> <path d="M109.969,0c-9.228,0-16.734,7.507-16.734,16.734v38.25v40.641c0,9.228,7.506,16.734,16.734,16.734h14.344 c9.228,0,16.734-7.507,16.734-16.734V54.984v-38.25C141.047,7.507,133.541,0,124.312,0H109.969z"></path> <path d="M372.938,0c-9.228,0-16.734,7.507-16.734,16.734v38.25v40.641c0,9.228,7.507,16.734,16.734,16.734h14.344 c9.228,0,16.734-7.507,16.734-16.734V54.984v-38.25C404.016,7.507,396.509,0,387.281,0H372.938z"></path> <path d="M38.25,494.859h236.672c-2.333-11.6-3.572-23.586-3.572-35.859c0-4.021,0.177-7.999,0.435-11.953H71.719 c-15.845,0-28.688-12.843-28.688-28.688v-229.5h411.188v88.707c3.165-0.163,6.354-0.253,9.562-0.253 c11.437,0,22.61,1.109,33.469,3.141V93.234c0-21.124-17.126-38.25-38.25-38.25h-31.078v40.641c0,22.41-18.23,40.641-40.641,40.641 h-14.344c-22.41,0-40.641-18.231-40.641-40.641V54.984H164.953v40.641c0,22.41-18.231,40.641-40.641,40.641h-14.344 c-22.41,0-40.641-18.231-40.641-40.641V54.984H38.25C17.126,54.984,0,72.111,0,93.234v363.375 C0,477.733,17.126,494.859,38.25,494.859z"></path> <circle cx="134.774" cy="260.578" r="37.954"></circle> <circle cx="248.625" cy="260.578" r="37.954"></circle> <circle cx="362.477" cy="260.578" r="37.954"></circle> <circle cx="248.625" cy="375.328" r="37.953"></circle> <circle cx="134.774" cy="375.328" r="37.953"></circle> </g> </g> </g></svg>
+            </div>
+            <span>Date</span>
+        </div>
+    </footer>
+    <div id="taskDatesMobile_container" class="fixed bottom-0 left-0 w-full h-0 bg-[var(--content-end-bg)] text-[var(--content-text)] overflow-y-auto flex flex-col items-start gap-2 transition-all duration-300 z-30">
+        
+    </div>
+
+
+    <script src="components/cornerIcon.js"></script>
+    <script src="components/priorityIcons.js"></script>
+    <script src="components/checkingIcon.js"></script>
+    <script src="components/profileDeleteIcon.js"></script>
+    <script src="scripts/saveImage.js"></script>
+    <script src="scripts/tasks.js"></script>
+    <script src="scripts/options.js"></script>
+    <script src="scripts/app.js"></script>
+</body>
+</html>
