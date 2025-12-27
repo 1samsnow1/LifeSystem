@@ -1,3 +1,38 @@
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("./sw.js");
+}
+// install PWA section
+let deferredPrompt;
+const installBtn = document.getElementById("installBtn");
+// add install prompt
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  // Show button
+  installBtn.classList.remove("hidden");
+});
+
+// button function
+installBtn.addEventListener("click", async () => {
+  if (!deferredPrompt) return;
+
+  deferredPrompt.prompt();
+  const result = await deferredPrompt.userChoice;
+
+  if (result.outcome === "accepted") {
+    console.log("User installed the app");
+  }
+
+  deferredPrompt = null;
+  installBtn.classList.add("hidden");
+});
+//check if user installed and hide the btn
+window.addEventListener("appinstalled", () => {
+  console.log("App installed");
+  installBtn.classList.add("hidden");
+});
+
+//rest of the app
 const ChallengesContainer = document.getElementById("ChallengesContainer");
 const container = document.getElementById("xp-bar");
 
