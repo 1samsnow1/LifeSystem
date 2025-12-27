@@ -163,7 +163,7 @@ function completeTask(xpAmount = 0, taskId) {
     localStorage.setItem("user_total_xp", currentTotalXp + xpAmount);
   }
   // remove the task object from tasks array
-  console.log(taskId)
+  console.log("task id:", taskId);
   if(tasks.length >1 && !taskId.includes("sub")){
     let index = tasks.findIndex(clickedTask => clickedTask.task_id == taskId);
     console.log("task index: " + index);
@@ -178,6 +178,7 @@ function completeTask(xpAmount = 0, taskId) {
   }else if(taskId == 1){
     completedTasks.push({taskTitle: 'Create Your First Task', taskDesc: 'Create yor first task and start your journey!', taskXP: 1000, taskPriority: 1, subTasks: [], createdAt: null, dueDate: null, task_id: 1});
     localStorage.setItem('checked_first_task', true);
+    checked_first_task = localStorage.getItem('checked_first_task');
     console.log("final complete condition: "+ completedTasks);
   }else if(taskId.includes("sub")){
     let taskIndex = tasks.findIndex(clickedTask => clickedTask.task_id == parseInt(taskId));
@@ -240,6 +241,7 @@ function completeTask(xpAmount = 0, taskId) {
               xpAmount_p.innerText = targetTotalXP;
               xpBar.style.width = `${targetTotalXP/10}%`;
                 localStorage.setItem('user_level',levelNumber.innerText);
+                user_level = localStorage.getItem('user_level') || 0;
                 localStorage.setItem("remain_xp", targetTotalXP);
                 localStorage.setItem('myTasks', JSON.stringify(tasks));
                 localStorage.setItem('completed_tasks', JSON.stringify(completedTasks));

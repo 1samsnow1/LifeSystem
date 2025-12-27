@@ -118,7 +118,7 @@ light gray : #F2F2F2
   --add-form-bg-end:#162456;
   --error-color:#ff6467 ;
   --input-number-border: white;
-  --add-form-scrollbar:oklch(80.9% 0.105 251.813);
+  --add-form-scrollbar:#8ec5ff;
 
   /* priority colors  */
   --prio1:oklch(80.8% 0.114 19.571);

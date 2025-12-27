@@ -66,6 +66,7 @@ const cssVariablesByCategory = [
     category: "Layout & Background",
     variables: [
       { name: "Header Background", color: "#162456", variableName: "--header-bg" },
+      { name: "footer border", color: "#ffffff", variableName: "--footer-border" },
       { name: "Theme Color", color: "#1D1340", variableName: "--theme-color" },
       { name: "Theme Color Light", color: "#7f8ee3", variableName: "--theme-color-light" },
       { name: "Content Start Background", color: "oklch(70.7% 0.165 254.624)", variableName: "--content-start-bg" },
@@ -106,6 +107,7 @@ const cssVariablesByCategory = [
     variables: [
       { name: "Add Form Background Start", color: "oklch(70.7% 0.165 254.624)", variableName: "--add-form-bg-start" },
       { name: "Add Form Background End", color: "#162456", variableName: "--add-form-bg-end" },
+      { name: "Add Form scrollbar", color: "#8ec5ff", variableName: "--add-form-scrollbar" },
       { name: "Error Color", color: "#ff6467", variableName: "--error-color" },
       { name: "Input Number Border", color: "white", variableName: "--input-number-border" }
     ]
