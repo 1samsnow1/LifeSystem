@@ -64,7 +64,7 @@ document.getElementById('deleteProfileBtn').addEventListener('click', async () =
         try {
             await imageDB.deleteImage('userProfile');     
             // Reset to default image
-            document.getElementById('profilePic').src = 'images/testImg.jfif';
+            document.getElementById('profilePic').src = 'src/images/testImg.jfif';
             // Clear file input
             document.getElementById('profilePic_input').value = '';
             console.log('Profile picture deleted successfully');
