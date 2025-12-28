@@ -29,8 +29,25 @@ self.addEventListener("install", event => {
   );
 });
 
-self.addEventListener("fetch", event => {
-  event.respondWith(
-    caches.match(event.request).then(res => res || fetch(event.request))
-  );
+self.addEventListener('activate', evt=>{
+    evt.waitUntil(
+        caches.keys().then(keys=>{
+           return Promise.all(keys.filter(key=>key !== CACHE_NAME).map(key=>caches.delete(key))
+        )}
+        )
+    )
 });
+
+self.addEventListener('fetch', evt => {
+    // console.log("fetch event: ", evt);
+    evt.respondWith(
+        caches.match(evt.request).then(cacheRes=>{
+            return cacheRes || fetch(evt.request).then(fetchRes=>{
+                return caches.open(CACHE_NAME).then(cache=>{
+                    cache.put(evt.request.url, fetchRes.clone());
+                    return fetchRes;
+                })
+            });
+        })
+      )
+})
