@@ -12,7 +12,7 @@
 </head>
 <body class="sm:bg-orange-300 max-[640px]:bg-radial from-[var(--content-start-bg)] to-[var(--content-end-bg)]">
     <header>
-        <div class="py-3 pl-1 pr-2 min-[410px]:p-3 sm:p-6 flex justify-between items-center font-sans sm:bg-[var(--header-bg)]">
+        <div class="py-3 px-2 pr-2 sm:p-6 flex justify-between items-center font-sans sm:bg-[var(--header-bg)]">
             <!-- profile and level -->
             <div class="w-full flex items-center gap-1">
                  <div class="max-w-72 sm:max-w-96 w-full flex items-center relative">
@@ -21,7 +21,7 @@
                         <div class="min-w-12 w-12 h-12 min-h-12 sm:min-w-14 sm:w-14 sm:h-14 sm:min-h-14 rounded-full transition-all duration-300 active:scale-95 z-30 overflow-hidden">
                            <input type="file" accept="image/*" id="profilePic_input" class="hidden">
                             <label for="profilePic_input" class="w-full cursor-pointer">
-                                <img id="profilePic" class="w-full" src="src/images/testImg.jfif" alt="">
+                                <img id="profilePic" class="w-full" src="src/images/LifeSystemPNGVDesktop.png" alt="">
                            </label>
                         </div>
                         <button id="deleteProfileBtn" class="absolute -bottom-1 -right-1 cursor-pointer scale-0 transition-all duration-300 group-hover:scale-100">
@@ -52,14 +52,15 @@
                     </p>
                  </div>
             </div>
-            <!-- App notification -->
+            <!-- Desktop header -->
             <div class="flex items-center gap-4">
                 <!-- app download btn -->
                 <button id="installBtn" class="hidden [&>svg]:w-[24px] [&>svg]:h-[24px] cursor-pointer absolute top-1 right-3 sm:static">
-                    
                 </button>
-
-
+                <!-- inventory -->
+                 <button onclick="toggleInventoryDisplay()" class="hidden md:block text-[var(--acc-level)] text-shadow-md text-shadow-blue-200 cursor-pointer">inventory</button>
+                <!-- stats button -->
+                <button onclick="toggleStatsDisplay()" id="statsBtn" class="cursor-pointer hidden sm:block statsBtn"></button>
                 <!-- app local storage notification -->
                  <div id="app_notification" class="relative cursor-pointer group hidden sm:hidden">
                     <div class="relative">
@@ -98,44 +99,97 @@
             </div>
         </div>
     </header>
-    <main class="font-sans min-h-svh sm:pt-10">
-        <section class="contentSize min-h-[534px] sm:bg-radial from-[var(--content-start-bg)] to-[var(--content-end-bg)] relative p-2 sm:p-10 mx-4 mb-4 overflow-hidden sm:rounded-lg contentShadow shadow-gray-900">
+    <main class="font-sans sm:max-h-[calc(100vh-104px)] overflow-hidden sm:pt-2">
+        <section class="contentSize h-[calc(100vh-122px)] sm:min-h-[534px] sm:bg-radial from-[var(--content-start-bg)] to-[var(--content-end-bg)] relative px-2 sm:p-10 mx-4 mb-4 overflow-hidden sm:rounded-lg contentShadow shadow-gray-900">
             
             <div id="ChallengesContainer" class="transition-all duration-300 relative" style="opacity: 100%;">
                 <div>
                     <div class="flex justify-between items-end border-b-2 border-[var(--border-color)] pb-2 text-[var(--content-text)]">
                         <h2 class="text-lg md:text-xl text-shadow-xs text-shadow-white flex gap-2 translate-y-1">
-                            <span>Challenges</span>
+                            <span>Goals</span>
                             <span id="mobileShowDate">- Today</span>
                         </h2>
-                        <div onclick="showAddForm()" class="translate-y-1.5 md:translate-y-0.5 text-[var(--content-text)] cursor-pointer z-10"><strong>add+</strong></div>
+                        <div onclick="showAddForm()" class="translate-y-1.5 md:translate-y-0.5 text-[var(--content-text)] cursor-pointer transition-all duration-300 active:scale-90 z-10"><strong>add+</strong></div>
                     </div>
-                <div class="flex gap-2 py-2">
+                <div class="flex h-[450px] gap-2 py-2">
                     <!-- tasks' day -->
                     <div class="hidden md:block w-60 pr-2 overflow-hidden border-r-2 border-[var(--border-color)] static text-[var(--content-text)] z-10">
-                        <ul id="taskDates_container" class="w-full text-center">
+                        <ul id="taskDates_container" class="w-full h-full overflow-y-auto invisScrollbar text-center">
                         </ul>
                     </div>
                     <!-- task container  -->
-                    <div id="tasksContainer" class="tasksContainer">
+                    <div id="tasksContainer" class="tasksContainer TasksContainerScrollbar">
                        
                     </div>
                 </div>
                 </div>
             </div>
-            
-            <!-- click outside from -->
-            <div id="addFormOutside" onclick="showAddForm()" class="hidden bg-black/60 sm:bg-transparent w-full h-svh fixed top-0 left-0 z-20"></div>
-            <!-- add form -->
-            <form id="addForm" class="w-full sm:w-0 h-0 rounded-t-lg sm:rounded-full overflow-hidden bg-radial from-[var(--add-form-bg-start)] to-[var(--add-form-bg-end)] transition-all duartion-300 sm:absolute fixed sm:top-8 bottom-0 left-1/2 -translate-x-1/2 shadow-2xl shadow-gray-900/80 z-30" action="" submit.prevent ="">
-                <div class="pt-2 px-3 sm:px-5">
-                    <div class="w-full flex flex-nowrap justify-between text-xl text-[var(--content-text)]">
-                        <input class="formInput font-semibold placeholder:text-[var(--content-text)]/90 text-xl" placeholder="Task Title" type="text"  name="taskTitle" id="taskTitle">
-                        <div class="cursor-pointer" onclick="showAddForm()">X</div>
-                    </div>
 
-                    <!-- description input -->
-                    <input class="formInput w-full text-sm" placeholder="description" type="text" name="taskDesc" id="taskDesc">
+            <!-- task details box-->
+            <div id="taskDetailsOutside" onclick="toggleTaskDetailDisplay()" class="hidden bg-black/50 transition-all duration-300 w-full h-svh fixed top-0 left-0 z-20 opacity-0"></div>
+            <div id="taskDetailsAndEdit" class="hidden max-[600px]:w-11/12 w-4/5 rounded-t-lg border border-transparent transition-all duration-1000 absolute top-8 left-1/2 -translate-x-1/2 origin-center text-[var(--content-text)] z-30 opacity-0">
+                <div id="taskDetailsClipWrapper" class="taskDetailsClipWrapper transition-all duration-300 closed relative">
+                    
+                    <div id="taskDetailsWrapper" class=" after:transition-all after:duration-300 before:transition-all before:duration-300 sm:rounded-lg bg-radial from-[var(--add-form-bg-start)] to-[var(--add-form-bg-end)] transition-all duration-300 taskDetailsWrapper">
+                        <h2 id="mainTaskTitleOfSubtask" class="w-full text-xl pt-1 pl-2 hidden"></h2>
+                        <div id="taskDetailsContainer" class="py-2 px-4 relative">
+                            <div class="max-h-56 overflow-y-auto subTaskScrollbar">
+                                <textarea rows="1" id="taskDetail_title" class="taskDetailInput autoResizeTextArea w-10/12 resize-none text-lg overflow-hidden" type="text">
+                                    Create your first task
+                                </textarea>
+                                <textarea class="taskDetailInput autoResizeTextArea w-full resize-none overflow-hidden" rows="1" name="" id="taskDetailTextArea">Lorem ipsum dolor sit amet consectetur adipisicing elit. Similique vitae asperiores reprehenderit in? Quae, sunt.</textarea>
+                            </div>
+                            <!-- priority -->
+                            <div class="relative">
+                                <div id="taskDetail_priority" class="w-7 h-7 flex justify-center items-center mt-4 p-0.5 border border-[var(--theme-color-light)] rounded-md bg-[var(--priority-container-bg)] md:cursor-pointer"></div>
+                                <div id="taskDetail_priorities_container" class="w-0 h-8 bg-[var(--priority-container-bg)] rounded-md absolute -top-0.5 left-8 flex justify-center items-center gap-2 overflow-hidden transition-all duration-300">
+                                </div>
+                            </div>
+                            <input id="taskDetail_date" class="taskDetailInput text-sm" type="text" value="No Date">
+                            <div id="taskDetailXpInputContainer" class="flex text-sm my-2 relative">
+                                <input id="taskDetailXpInput" class="taskDetailInput w-fit" type="text" inputmode="numeric" pattern="[0-9\s\-]*" value="1000">
+                                <span id="taskDetailXpInputMirror" class="absolute invisible whitespace-nowrap"></span>
+                                <span>xp</span>
+                            </div>
+                            <div id="taskDetail_reward_container">
+                                <h3 class="font-semibold">Reward:</h3>
+                                <div class="pl-4">
+                                    <div class="w-fit border-2 border-[var(--acc-level)] rounded-md flex flex-col items-center gap-1 overflow-hidden relative">
+                                        <img id="taskDetail_rewardImg" class="w-28 h-20 rounded-t-md" src="./src/images/magical_lamp.jpg" alt="">
+                                        <div id="addToInventory_checkIcon" class="absolute bottom-[30px] right-0.5 pointer-events-none bg-[var(--content-text)] rounded-full hidden">
+                                            <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path fill-rule="evenodd" clip-rule="evenodd" d="M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12ZM16.0303 8.96967C16.3232 9.26256 16.3232 9.73744 16.0303 10.0303L11.0303 15.0303C10.7374 15.3232 10.2626 15.3232 9.96967 15.0303L7.96967 13.0303C7.67678 12.7374 7.67678 12.2626 7.96967 11.9697C8.26256 11.6768 8.73744 11.6768 9.03033 11.9697L10.5 13.4393L12.7348 11.2045L14.9697 8.96967C15.2626 8.67678 15.7374 8.67678 16.0303 8.96967Z" fill="var(--static-checkbox)"></path> </g></svg>
+                                        </div>
+                                        <span id="taskDetail_rewardName" class="text-sm pb-1 overflow-hidden whitespace-nowrap text-ellipsis">Reward Name</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="editTaskBtnContainer" class="py-2 px-4 flex flex-row-reverse justify-between border-t border-[var(--content-text)] whitespace-nowrap [&>div]:flex [&>div]:gap-2">
+                        </div>
+                    </div>
+                    <div id="taskDetailsWrapperTopScroll" class="w-[105%] h-6 rounded-t-full bg-[var(--theme-color)] transition-all duration-300 absolute top-1/2 -translate-y-6 -right-[2%]">
+                        <img class="w-full h-full" src="src/images/mainBorder.png" alt="system_border">
+                    </div>
+                    <div id="taskDetailsWrapperBottomScroll" class="w-[105%] h-6 rounded-b-full bg-[var(--theme-color)] transition-all duration-300 absolute bottom-1/2 translate-y-6 -right-[2%]">
+                        <img class="w-full h-full rotate-180" src="src/images/mainBorder.png" alt="system_border">
+                    </div>
+                </div>
+            </div>
+
+            <!-- click outside form -->
+            <div id="addFormOutside" onclick="showAddForm()" class="hidden bg-black/20 opacity-0 transition-all duration-300 w-full h-svh fixed top-0 left-0 z-20"></div>
+            <!-- add form -->
+            <form id="addForm" class="w-full sm:w-4/5 rounded-t-lg sm:rounded-lg overflow-hidden bg-radial from-[var(--add-form-bg-start)] to-[var(--add-form-bg-end)] transition-all duration-300 sm:absolute fixed sm:top-8 bottom-0 left-1/2 -translate-x-1/2 shadow-xl shadow-gray-900/60 z-30 hidden" action="" style="height: 0px;" submit.prevent ="">
+                <div id="addFormContent" class="pt-2 px-3 sm:px-5 opacity-0 transition-all duration-300">
+                    <!-- title and description -->
+                    <div class="w-full max-h-56 overflow-y-auto subTaskScrollbar">
+                        <div class="w-full flex flex-nowrap justify-between text-xl text-[var(--content-text)]">
+                            <textarea class="formInput w-full autoResizeTextArea resize-none font-semibold placeholder:text-[var(--content-text)]/90 text-xl" placeholder="Task Title" type="text" rows="1" name="taskTitle" id="taskTitle"></textarea>
+                            <div class="cursor-pointer" onclick="showAddForm()">X</div>
+                        </div>
+                        <!-- description input -->
+                        <textarea class="formInput autoResizeTextArea resize-none w-full text-sm" placeholder="description" type="text" rows="1" name="taskDesc" id="taskDesc"></textarea>
+                    </div>
 
                     <!-- subtask inputs -->
                     <div class="w-full mt-2 text-[var(--content-text)]">
@@ -154,25 +208,26 @@
                             <p>Duo date: </p>
                             <div class="w-40 bg-[var(--add-form-bg-end)] rounded-md relative">
                                 <button onclick="toggleDueDateDisplay()" type="button" class="w-full flex justify-between p-1 pl-2">
-                                    <span id="chosenDueDate">Today</span>
+                                    <span id="chosenDueDate">No Date</span>
                                     <span class="transform -rotate-90">
                                         <svg width="12px" height="12px" viewBox="0 0 1024 1024" class="icon" version="1.1" xmlns="http://www.w3.org/2000/svg" fill="currentColor" stroke="currentColor" stroke-width="102.4">
         
-        <g id="SVGRepo_bgCarrier" stroke-width="0"/>
-        
-        <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"/>
-        
-        <g id="SVGRepo_iconCarrier">
-        
-        <path d="M768 903.232l-50.432 56.768L256 512l461.568-448 50.432 56.768L364.928 512z" fill="currentColor"/>
-        
-        </g>
-        
-        </svg>
+                                            <g id="SVGRepo_bgCarrier" stroke-width="0"/>
+                                            
+                                            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"/>
+                                            
+                                            <g id="SVGRepo_iconCarrier">
+                                            
+                                            <path d="M768 903.232l-50.432 56.768L256 512l461.568-448 50.432 56.768L364.928 512z" fill="currentColor"/>
+                                            
+                                            </g>
+                                            
+                                        </svg>
                                     </span>
                                 </button>
                                 <div id="Duodate_options_container" class="hidden absolute top-9 left-0 w-full bg-[var(--add-form-bg-end)] rounded-lg overflow-hidden z-40">
                                     <div class="h-40 overflow-x-hidden overflow-y-scroll dateScrollBar [&>div]:cursor-default [&>div]:hover:bg-[var(--add-form-bg-start)] [&>div]:py-1 [&>div]:px-2">
+                                        <div class="addFormDateValue">No Date</div>
                                         <div class="addFormDateValue">Today</div>
                                         <div class="addFormDateValue">Sunday</div>
                                         <div class="addFormDateValue">Monday</div>
@@ -189,22 +244,10 @@
                         <div id="custom_date_placeholder" class="opacity-0 cursor-default text-[var(--content-text)] absolute top-10 left-0 min-[400px]:top-0 min-[400px]:left-[245px] z-0 transition-all duration-500">Custom date</div>
                         <input oninput="hidePlaceholder()" class="formInput hidden border-b-2 border-[var(--add-form-bg-end)] w-full max-w-[160px] z-10 origin-left scale-x-0 transition-all duration-500" type="text" name="taskDateInput" id="custom_date_input">
                     </div>
-                    <div id="mobileCalender" class="sm:hidden absolute bottom-0 left-0 w-full h-0 bg-[var(--add-form-bg-start)] text-[var(--content-text)] overflow-y-auto rounded-t-lg border-2 border-b-0 border-[var(--add-form-bg-start)] transition-all duration-300 z-50 [&>div]:w-full [&>div]:text-center [&>div]:py-2 [&>div]:bg-[var(--add-form-bg-end)] [&>div]:first:rounded-t-lg">
-                        <div class="mobileCalenderValue">Today</div>
-                        <div class="mobileCalenderValue">Sunday</div>
-                        <div class="mobileCalenderValue">Monday</div>
-                        <div class="mobileCalenderValue">Tuesday</div>
-                        <div class="mobileCalenderValue">Wednesday</div>
-                        <div class="mobileCalenderValue">Thursday</div>
-                        <div class="mobileCalenderValue">Friday</div>
-                        <div class="mobileCalenderValue">Saturday</div>
-                        <div class="mobileCalenderValue">Custom date</div>
-                    </div>
-
                     <!-- xp section -->
                     <div class="flex items-center text-[var(--content-text)] mt-6 sm:mt-0">
                         <div onclick="FormfillCheckbox(this), showXp()" class="w-fit cursor-pointer flex items-center gap-1 transition-all duration-300 group relative">
-                            <div class="w-[17px] h-[17px] absolute top-1 left-[4px] bg-[var(--checkbox-inactive)] rounded-full z-40"></div>
+                            <div class="w-[17px] h-[17px] absolute top-1 left-[4px] xl:left-[3.5px] bg-[var(--checkbox-inactive)] rounded-full z-40"></div>
                             <div class="w-6 h-6 rounded-full flex items-center justify-center checkboxFill z-50">
                             </div>
                             <p class="group-active:scale-95 transition-all duration-300">include XP</p>
@@ -214,17 +257,75 @@
                             <div class="border-b-2 border-[var(--input-number-border)]">/ 1000</div>
                         </div>
                     </div>
-
-                    <div class="flex items-center gap-2 my-2 relative">
-                        <div onclick="openPriorityContainer()" class="border border-[var(--border-color)] text-sm text-[var(--content-text)] hover:bg-[var(--priority-container-bg)] transition-all duration-300 rounded-md text-center pb-1 px-3 cursor-pointer">priority</div>
-                        <div id="chosen_priority" class="absolute -top-0 left-[74px]"></div>
-                        <!-- priority container -->
-                        <div id="priority_container" class="w-0 h-[65px] bg-[var(--priority-container-bg)] rounded-md absolute top-0 left-40 sm:top-7 sm:left-[92px] -translate-x-1/2 transformOrigin flex justify-center items-center gap-2 overflow-hidden transition-all duration-300">
+                    <!-- priority and reward -->
+                    <div class="flex items-center gap-1">
+                        <!-- priority section -->
+                        <div class="flex items-center gap-2 my-2 relative">
+                            <div onclick="openPriorityContainer()" class="border border-[var(--border-color)] text-sm text-[var(--content-text)] hover:bg-[var(--priority-container-bg)] transition-all duration-300 rounded-md text-center pb-1 px-3 cursor-pointer">priority</div>
+                            <div id="chosen_priority" class="absolute -top-0 left-[74px]"></div>
+                            <!-- priority container -->
+                            <div id="priority_container" class="w-0 h-[65px] bg-[var(--priority-container-bg)] rounded-md absolute top-0 left-40 sm:top-7 sm:left-[92px] -translate-x-1/2 transformOrigin flex justify-center items-center gap-2 overflow-hidden transition-all duration-300 z-10">
+                            </div>
                         </div>
+                        <!-- reward section -->
+                         <div onclick="toggleRewardForm()" class="border border-[var(--border-color)] text-sm text-[var(--content-text)] bg-[var(--priority-container-bg)] transition-all duration-300 rounded-md text-center pb-1 px-3 cursor-pointer">
+                            reward
+                         </div>
+                         <div id="rewardName" class="text-[var(--content-text)] max-w-14 overflow-hidden text-ellipsis whitespace-nowrap"></div>
                     </div>
                 </div>
-                <div class="py-2 px-5 flex justify-end border-t border-[var(--border-color)]">
-                    <button onclick="addTask()" type="button" class="py-1 px-3 rounded-md bg-blue-600 text-white font-semibold cursor-pointer hover:bg-blue-700/40 active:scale-95 transition-all duration-300">Accept Task</button>
+                <div id="addFormBtn" class="opacity-0 transition-all duration-300 py-2 px-3 sm:px-5 text-sm sm:text-base text-[var(--content-text)] flex justify-between border-t border-[var(--border-color)]">
+                    <div class="flex items-center gap-2">
+                        <button onclick="toggleStatsForm()" type="button" class="py-1 px-2 sm:px-3 rounded-md bg-[var(--form-stats-Btn-bg)] shadow-sm shadow-blue-300 cursor-pointer active:scale-95 transition-all duration-300">Add Stats</button>
+                        <div onclick="toggleSelectedStatsDisplay()" id="selectedStatsBtnAndInfo" class="w-[110px] py-1 px-2 text-sm bg-[var(--form-stats-Btn-bg)] rounded-md hidden justify-between items-center gap-2 text-center relative">
+                            <div id="selectedStatsBtn" class="overflow-hidden text-ellipsis cursor-default">
+                                <div class="flex">
+                                    <p id="selectedStatsBtnName" class="overflow-hidden text-ellipsis max-w-8"></p>
+                                    <span>+</span>
+                                    <span id="selectedStatsBtnLevel" class="overflow-hidden text-ellipsis max-w-8"></span>
+                                </div>
+                            </div>
+                            <span class="transform rotate-90">
+                                <svg width="10px" height="10px" viewBox="0 0 1024 1024" class="icon" version="1.1" xmlns="http://www.w3.org/2000/svg" fill="currentColor" stroke="currentColor" stroke-width="102.4">
+
+                                    <g id="SVGRepo_bgCarrier" stroke-width="0"/>
+                                    
+                                    <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"/>
+                                    
+                                    <g id="SVGRepo_iconCarrier">
+                                    
+                                    <path d="M768 903.232l-50.432 56.768L256 512l461.568-448 50.432 56.768L364.928 512z" fill="currentColor"/>
+                                    
+                                    </g>
+                                    
+                                </svg>
+                            </span>
+                            <div id="selectedStatsDisplayContainer" class="w-[110px] text-sm absolute -top-[164px] left-0 shadow-sm shadow-blue-400 rounded-md gap-1 overflow-hidden z-50 hidden">
+                                <div class="relative">
+                                    <div id="selectedStatsDisplay" class="w-full h-40 overflow-y-auto statsScrollbar pb-7 px-2 bg-[var(--form-stats-Btn-bg)] [&>div]:pt-2 [&>div]:flex [&>div]:justify-center [&>div]:gap-1">
+                                        
+                                    </div>
+                                    <!-- bottom arrow svg -->
+                                    <div class="w-full p-2 bg-blue-950 flex justify-center transition-all duration-300 text-blue-300 hover:text-gray-50 [&>svg]:transform [&>svg]:-rotate-90 absolute bottom-0 right-0">
+                                        <svg width="10px" height="10px" viewBox="0 0 1024 1024" class="icon" version="1.1" xmlns="http://www.w3.org/2000/svg" fill="currentColor" stroke="currentColor" stroke-width="102.4">
+
+                                            <g id="SVGRepo_bgCarrier" stroke-width="0"/>
+                                            
+                                            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"/>
+                                            
+                                            <g id="SVGRepo_iconCarrier">
+                                            
+                                            <path d="M768 903.232l-50.432 56.768L256 512l461.568-448 50.432 56.768L364.928 512z" fill="currentColor"/>
+                                            
+                                            </g>
+                                            
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="addTask()" type="button" class="py-1 px-2 sm:px-3 rounded-md bg-blue-600 font-semibold cursor-pointer hover:bg-blue-700/40 active:scale-95 transition-all duration-300">Accept Task</button>
                 </div>
             </form>
 
@@ -238,9 +339,12 @@
         <!-- options -->
         <div id="optionsOutside" onclick="toggleOptionsDisplay()" class="hidden opacity-0 w-full h-svh bg-black/30 transition-all duration-300 fixed top-0 left-0 z-20"></div>
         <div id="optionsContainer" class="hidden opacity-0 w-[95%] md:w-4/5 max-w-4xl py-2 px-4 rounded-md overflow-hidden bg-radial from-[var(--add-form-bg-start)] to-[var(--add-form-bg-end)] text-[var(--content-text)] transition-all duartion-300 absolute top-4 sm:top-20 left-1/2 -translate-x-1/2 -translate-y-10 shadow-2xl shadow-gray-900/80 z-30">
-            <div onclick="toggleOptionsDisplay()" class="w-full text-right text-lg cursor-pointer">X</div>
-            <div id="optionsCategoryContainer" class="grid grid-cols-3 border-b border-gray-300 text-center text-sm sm:text-base [&>div]:p-2 [&>div]:transition-all [&>div]:duration-300 [&>div]:border-b-2 [&>div]:cursor-pointer">
+            <div class="w-full flex justify-end">
+                <div onclick="toggleOptionsDisplay()" class="w-fit text-right text-lg cursor-pointer">X</div>
+            </div>
+            <div id="optionsCategoryContainer" class="grid grid-cols-4 border-b border-gray-300 text-center text-sm sm:text-base [&>div]:p-2 [&>div]:transition-all [&>div]:duration-300 [&>div]:border-b-2 [&>div]:cursor-pointer">
                 <div onclick="selectOptionMenu('App colors')" class="optionCategory border-transparent opacity-70">App colors</div>
+                <div onclick="selectOptionMenu('System Titles')" class="optionCategory border-transparent opacity-70">System Titles</div>
                 <div onclick="selectOptionMenu('Account')" class="optionCategory border-transparent opacity-70">Account</div>
                 <div onclick="selectOptionMenu('App info')" class="optionCategory border-transparent opacity-70">App info</div>
             </div>
@@ -250,13 +354,126 @@
             </div>
         </div>
 
+        <!-- stats -->
+        <div id="statsOutside" onclick="toggleStatsDisplay()" class="hidden opacity-0 w-full h-svh bg-black/30 transition-all duration-300 fixed top-0 left-0 z-20"></div>
+        <div id="statsContainer" class="statsContainer hidden w-[0%] h-2 transition-all duration-500 absolute top-1/10 left-1/2 -translate-x-1/2 origin-center text-[var(--content-text)] z-30">
+            <div id="statsClipWrapper" class="statsClipWrapper bg-[var(--xp-bar-bg)] w-full h-full rounded-lg transition-all duration-300 text-[var(--content-text)]">
+                <div class="w-full h-full pt-2 overflow-hidden relative">
+                    <div class="font-semibold flex justify-center items-center text-center text-xl z-20"><h2 class="z-20">STATS</h2></div>
+                    <div id="statsBox" class="w-full h-full pt-4 grid grid-cols-2 sm:grid-cols-3 text-lg [&>div]:flex [&>div]:justify-center [&>div]:h-fit [&>div]:gap-1 [&>div]:z-10 [&>div>div]:flex [&>div>div]:gap-2 [&>div>div]:fit [&>div>div]:relative">
+                        <div>
+                            <div>
+                                <span class="z-10">str:</span>
+                                <span class="z-10">10</span>
+                                <div class="w-4/5 h-4 bg-blue-500/80 blur-sm absolute right-1/2 translate-x-1/2 top-2 rounded-full z-0"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div>
+                                <span class="z-10">int:</span>
+                                <span class="z-10">12</span>
+                                <div class="w-4/5 h-4 bg-blue-500/80 blur-sm absolute right-1/2 translate-x-1/2 top-2 rounded-full z-0"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div>
+                                <span class="z-10">dex:</span>
+                                <span class="z-10">15</span>
+                                <div class="w-4/5 h-4 bg-blue-500/80 blur-sm absolute right-1/2 translate-x-1/2 top-2 rounded-full z-0"></div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="w-full h-full sm:hidden absolute top-0 right-1 z-0">
+                        <div class="w-[105%] blur-[4px] h-full relative">
+                            <div class="w-20 h-full bg-blue-500 absolute bottom-0 -left-10 statsBgEnergy"></div>
+                            <img class="w-[105%] h-full absolute top-0 left-0" src="./src/images/testStatsElectricBg.png" alt="statBg">
+                        </div>
+                    </div>
+                    <div class="w-1/2 h-full hidden sm:block opacity-55 absolute bottom-0 right-0 z-0">
+                        <img class="w-full statsBg" src="./src/images/elecPng5.png" alt="">
+                    </div>
+                    <div class="w-1/2 h-full hidden sm:block opacity-55 absolute bottom-0 right-1/2 z-0">
+                        <img class="w-full statsBg" src="./src/images/elecPng5fliped.png" alt="">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- add stats' form -->
+         <div onclick="toggleStatsForm()" id="statsFromOutside" class="hidden opacity-0 w-full h-svh bg-black transition-all duration-300 fixed top-0 left-0 z-50"></div>
+        <div id="statsForm" class="w-full sm:w-4/5 max-w-xl p-2 sm:p-4 pb-6 bg-[var(--stats-form-bg)] text-[var(--content-text)] rounded-md flex flex-col gap-4 border-2 border-blue-300 absolute top-1/2 left-1/2 -translate-1/2 z-50 transition-all duration-300 scale-y-0">
+            <!-- existing stats -->
+            <div class="w-full">
+                <h3 class="text-lg">Stats:</h3>
+                <!-- form stats container -->
+                <div id="formStatsContainer" class="sm:pl-3">
+                </div>
+            </div>
+            <!-- add / delete stat -->
+             <div class="pl-2 sm:pl-6">
+                 <div class="flex items-start gap-2">
+                     <input id="newStatInput" name="stat" placeholder="new stat" class="border-b appearance-none outline-0 border-blue-200" type="text">
+                     <button onclick="addNewStat()" class="w-5 h-5 translate-y-0.5 flex justify-center items-center border-2 border-[var(--content-text)] rounded-full addStatsBtnBg cursor-pointer active:translate-x-1 transition-all duration-300">
+                         <span class="-translate-y-[1px] translate-x-[1px]">></span>
+                     </button>
+                 </div>
+                 <div class="flex items-start gap-2 mt-2 relative">
+                     <input id="deleteStatInput" placeholder="delete stat" class="border-b appearance-none outline-0 border-blue-200" type="text">
+                     <button onclick="deleteStat()" class="w-5 h-5 translate-y-0.5 flex justify-center items-center border-2 border-[var(--content-text)] rounded-full cursor-pointer active:-translate-x-1 transition-all duration-300">
+                         <span class="-translate-y-[1px]"><</span>
+                     </button>
+                 </div>
+             </div>
+        </div>
+        <!-- reward form -->
+        <div onclick="toggleRewardForm()" id="rewardFromOutside" class="w-full h-svh hidden opacity-0 bg-black transition-all duration-300 fixed top-0 left-0 z-50"></div>
+        <div id="rewardForm" class="w-11/12 sm:w-1/2 lg:w-1/3 max-w-xl p-2 sm:p-6 bg-[var(--stats-form-bg)] rounded-md flex flex-col gap-4 border-2 border-blue-300 absolute top-1/6 left-1/2 -translate-x-1/2 z-50 scale-x-0 transition-all duration-300">
+            <div class="flex flex-col items-center gap-2">
+                <img id="formRewardImg" class="w-full max-h-60 rounded-md shadow-md shadow-gray-900" src="src/images/magical_lamp.jpg" alt="rewardTest">
+                <input type="file" accept="image/*" id="rewardImgInput" class="hidden">
+                <label for="rewardImgInput">
+                    <div id="rewardImgBtn" class="px-2 py-1 rounded-md bg-[var(--reward-btn-bg)] font-semibold text-[var(--stat-form-bg)] cursor-pointer transition-all duration-300 active:scale-95">Reward Image</div>
+                </label>
+            </div>
+            <div class="flex flex-col gap-2 text-sm sm:text-base">
+                <input id="rewardNameInput" type="text" placeholder="what is the reward?" class="rewardInput">
+                <div class="flex items-center gap-4">
+                    <p class="text-[var(--content-text)]">should be added to inventory?</p>
+                    <div class="flex items-center gap-2 [&>div]:cursor-pointer">
+                        <div class="rounded px-1 text-[var(--content-text)]" id="inventory_yes_choice" onclick="toggleAddToInventory('yes')">yes</div>
+                        <div class="text-[var(--content-text)]">/</div>
+                        <div class="rounded px-1 text-[var(--content-text)]" id="inventory_no_choice" onclick="toggleAddToInventory('no')">no</div>
+                    </div>
+                </div>
+                <div class="w-full flex justify-end">
+                    <button onclick="toggleRewardForm()" class="px-1 bg-[var(--reward-btn-bg)] rounded cursor-pointer">Done</button>
+                </div>
+            </div>
+        </div>
+        <!-- inventory -->
+        <div onclick="toggleInventoryDisplay()" id="inventoryOutside" class="w-full h-svh hidden opacity-0 bg-black transition-all duration-300 fixed top-0 left-0 z-50"></div>
+        <div id="inventoryContainer" class="w-11/12 sm:w-1/2 max-w-2xl p-1 absolute top-1/6 left-1/2 -translate-x-1/2 z-50 transition-all duration-300 hidden scale-y-0">
+            <div id="inventory" class="w-full min-h-40 bg-[var(--stats-form-bg)] p-1 rounded-md flex flex-wrap gap-1 inventoryClipWrapper">
+
+            </div>
+        </div>
     </main>
-    <footer id="mobileMenu" class="z-40 fixed bottom-0 left-0 bg-[var(--header-bg)] sm:hidden w-full h-[50px] grid grid-cols-2 pt-2 pb-1 px-3 border-t-2 border-[var(--footer-border)] text-[var(--content-text)] origin-bottom scale-y-100 transition-all duration-300">
+    <footer id="mobileMenu" class="z-10 fixed bottom-0 left-0 bg-[var(--header-bg)] sm:hidden w-full h-[50px] grid grid-cols-4 pt-2 pb-1 px-3 border-t-2 border-[var(--footer-border)] text-[var(--content-text)] origin-bottom scale-y-100 transition-all duration-300">
         <div onclick="toggleOptionsDisplay(),selectOptionMenu()" class="flex flex-col items-center text-xs">
             <div class="[&>svg]:w-[20px] [&>svg]:h-[20px]">
         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path fill-rule="evenodd" clip-rule="evenodd" d="M12.7848 0.449982C13.8239 0.449982 14.7167 1.16546 14.9122 2.15495L14.9991 2.59495C15.3408 4.32442 17.1859 5.35722 18.9016 4.7794L19.3383 4.63233C20.3199 4.30175 21.4054 4.69358 21.9249 5.56605L22.7097 6.88386C23.2293 7.75636 23.0365 8.86366 22.2504 9.52253L21.9008 9.81555C20.5267 10.9672 20.5267 13.0328 21.9008 14.1844L22.2504 14.4774C23.0365 15.1363 23.2293 16.2436 22.7097 17.1161L21.925 18.4339C21.4054 19.3064 20.3199 19.6982 19.3382 19.3676L18.9017 19.2205C17.1859 18.6426 15.3408 19.6754 14.9991 21.405L14.9122 21.845C14.7167 22.8345 13.8239 23.55 12.7848 23.55H11.2152C10.1761 23.55 9.28331 22.8345 9.08781 21.8451L9.00082 21.4048C8.65909 19.6754 6.81395 18.6426 5.09822 19.2205L4.66179 19.3675C3.68016 19.6982 2.59465 19.3063 2.07505 18.4338L1.2903 17.1161C0.770719 16.2436 0.963446 15.1363 1.74956 14.4774L2.09922 14.1844C3.47324 13.0327 3.47324 10.9672 2.09922 9.8156L1.74956 9.52254C0.963446 8.86366 0.77072 7.75638 1.2903 6.8839L2.07508 5.56608C2.59466 4.69359 3.68014 4.30176 4.66176 4.63236L5.09831 4.77939C6.81401 5.35722 8.65909 4.32449 9.00082 2.59506L9.0878 2.15487C9.28331 1.16542 10.176 0.449982 11.2152 0.449982H12.7848ZM12 15.3C13.8225 15.3 15.3 13.8225 15.3 12C15.3 10.1774 13.8225 8.69998 12 8.69998C10.1774 8.69998 8.69997 10.1774 8.69997 12C8.69997 13.8225 10.1774 15.3 12 15.3Z" fill="var(--acc-level)"></path> </g></svg>
                  </div>
-                 <span>options</span>
+                 <span>Options</span>
+        </div>
+        <div onclick="toggleStatsDisplay()" class="flex flex-col items-center text-xs">
+            <div class="statsBtn [&>svg]:w-[24px] [&>svg]:h-[24px]"></div>
+            <span>Stats</span>
+        </div>
+        <div onclick="toggleInventoryDisplay()" class="flex flex-col items-center text-xs">
+            <div class="[&>svg]:w-[24px] [&>svg]:h-[24px]">
+                <svg fill="var(--content-text)" width="24px" height="24px" viewBox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="M403 621v-40q0-14 8-18 5-3 13-3t12-7l7-11q4-5 2-10t-7-7l-4-1h-15q-12 0-11-35l3-18 1-1 35 36q3 2 9 2.5t11-3.5q12-11 23-23 7-9 2-15l-74-75 61-61h1l11 3q12 3 19-2 4-2 5-6v-1q-1-7 33-54 27-37 71-90l8-9q11-14 13-27 2-11-2-14.5t-14-1.5q-13 2-27 13l-99 79q-47 34-55 33-4 1-7 5-5 7-1 18l3 10v1l-26 26h-1v-1q2-54 5.5-100.5T423 156t-6-29q-7-17-20-31.5T376.5 81 356 95.5 336 127q-9 19-6 29.5t6.5 57T342 314v1h-1l-71-72q0-5 7-11 4-4 5-7t-.5-7.5-4.5-6.5l-37-37-8-8q-6-6-13-1-5 3-12 14h-1l-8-8q-9-8-21-8t-21 8.5-9 21 9 21.5l7 8-13 9q-23 16-49 27-6 2-20 3t-18 4q-6 6 1 25 18 44 51 77 21 21 47 33 20 10 41 14 14 3 22 2.5t9-9.5q4-12 4-33 0-3-2-6-4-5-3-16t5.5-20 17.5-17l77 77-177 178q-9 9-9 21.5t9 20.5q9 9 21 9t21-9l143-142h1l3 18q3 36-11 36h-18q-7 0-11.5 5t-4.5 12.5 4.5 12.5 11.5 5h10q11 0 16 3t6 10q1 4 1 12v37q0 12 8 19.5t19 7.5q12 0 19.5-7.5T403 621zm30 181q14 19 42 38 17 11 52 30l10 6q47 25 86 37 44 14 87 14 38 0 74-10 48-13 86-47.5t54-80.5q17-49 4-98-6-22-27-62t-27-61q-8-30-5-72 4-38 16-71 3-9 17-26 12-16 16-24 7-14 3-26-6-16-30-26-13-6-42-12l-52-12q-40-10-60-16-32-10-56-23-3-1-14-9-14-11-21-16-13-8-21-8-4 0-7 2-14 8-16 53-1 25 2 56 5 62 26 98-74 22-129.5 79T424 647q-12 42-12 79 0 48 21 76zm131-70q-15 0-20.5-17.5t-2-40.5 14.5-39q12-18 28-18h2q20 2 26 20 6 16-.5 38.5t-20 39.5-27.5 17zm23-251q21-11 34-16 17-6 32.5-6t29.5 4q54 14 95 34 67 33 55 63-6 15-26 33-12 10-36 26l-6 5q-23 16-42 16-13 0-32-7-22-8-66-28l-18-8-18-7q-22-9-33-14-18-10-25-19-16-22 3-43 12-11 43-28z"></path></g></svg>
+            </div>
+            <span>Inventory</span>
         </div>
         <div onclick="toggleMobileDatesContainer()" class="flex flex-col items-center text-xs">
             <div class="[&>svg]:w-[20px] [&>svg]:h-[20px]">
@@ -265,19 +482,24 @@
             <span>Date</span>
         </div>
     </footer>
-    <div id="taskDatesMobile_container" class="fixed bottom-0 left-0 w-full h-0 bg-[var(--content-end-bg)] text-[var(--content-text)] overflow-y-auto flex flex-col items-start gap-2 transition-all duration-300 z-30">
-        
+    <div id="taskDatesMobile_container" class="fixed sm:hidden bottom-0 left-0 w-full h-0 bg-[var(--content-end-bg)] text-[var(--content-text)] overflow-y-auto flex flex-col items-start gap-2 transition-all duration-300 z-30">
     </div>
 
 
     <script src="./src/components/cornerIcon.js"></script>
+    <script src="./src/components/tripledot.js"></script>
+    <script src="./src/components/statsIcon.js"></script>
+    <script src="./src/components/staticCheckIcon.js"></script>
     <script src="./src/components/installIcon.js"></script>
     <script src="./src/components/priorityIcons.js"></script>
     <script src="./src/components/checkingIcon.js"></script>
     <script src="./src/components/profileDeleteIcon.js"></script>
+    <script src="./src/scripts/inputsUi.js"></script>
     <script src="./src/scripts/saveImage.js"></script>
-    <script src="./src/scripts/tasks.js"></script>
+    <script src="./src/scripts/inventory.js"></script>
+    <script src="./src/scripts/rewardsImgs.js"></script>
     <script src="./src/scripts/options.js"></script>
+    <script src="./src/scripts/tasks.js"></script>
     <script src="./src/scripts/app.js"></script>
 </body>
 </html>

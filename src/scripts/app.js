@@ -8,8 +8,8 @@ const installBtn = document.getElementById("installBtn");
 window.addEventListener("beforeinstallprompt", (e) => {
   e.preventDefault();
   deferredPrompt = e;
-  // Show button
   installBtn.classList.remove("hidden");
+  installBtn.classList.add("block");
 });
 
 // button function
@@ -82,7 +82,7 @@ document.getElementById('profilePic_input').addEventListener('change', async (e)
         // Display immediately
         const reader = new FileReader();
         reader.onload = (e) => {
-            document.getElementById('profilePic').src = e.target.result;
+          document.getElementById('profilePic').src = e.target.result;
         };
         reader.readAsDataURL(file);
         
@@ -99,7 +99,7 @@ document.getElementById('deleteProfileBtn').addEventListener('click', async () =
         try {
             await imageDB.deleteImage('userProfile');     
             // Reset to default image
-            document.getElementById('profilePic').src = 'src/images/testImg.jfif';
+            document.getElementById('profilePic').src = 'src/images/LifeSystemPNGVDesktop.png';
             // Clear file input
             document.getElementById('profilePic_input').value = '';
             console.log('Profile picture deleted successfully');
@@ -109,8 +109,15 @@ document.getElementById('deleteProfileBtn').addEventListener('click', async () =
         }
     }
 });
-// Load profile picture on page load
+// handle on page load
 window.addEventListener('DOMContentLoaded', async () => {
+  // handle changed colors
+    if(changedColors){
+      changedColors.forEach((colorV)=>{
+        changeVarColorsOnLoad(colorV.varName, colorV.colorValue);
+      })
+    }
+  //handle saved img
     try {
         const imageData = await imageDB.loadImage('userProfile');
         if (imageData) {
@@ -124,17 +131,43 @@ window.addEventListener('DOMContentLoaded', async () => {
 // task dates contaniner
 const taskDates_container = document.getElementById('taskDates_container');
 const taskDatesMobile_container = document.getElementById('taskDatesMobile_container');
-let taskDates =['index', 'Today', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday' , 'Saturday'];
-taskDates.forEach((taskDate)=>{
-  taskDates_container.innerHTML += `<li onclick="chosenDate('${taskDate}')" class="taskDate">${taskDate}</li>`;
-  taskDatesMobile_container.innerHTML += `<span># ${taskDate}</span>`
-})
+let taskDates = JSON.parse(localStorage.getItem("taskDates")) ||['Index', 'Today', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday' , 'Saturday'];
+function insertTaskDates(){
+  taskDates_container.innerHTML = "";
+  taskDates.forEach((taskDate)=>{
+    taskDates_container.innerHTML += `<li onclick="chosenDate('${taskDate}')" class="taskDate">${taskDate}</li>`;
+    taskDatesMobile_container.innerHTML += `<span onclick="chosenDate('${taskDate}')"># ${taskDate}</span>`;
+  });
+}
+insertTaskDates();
+function deleteTaskDate(finishedTaskDate){
+  finishedTaskDate = finishedTaskDate.toLowerCase();
+  let tasksOnDate = tasks.filter(task=>{
+    return task.dueDate == finishedTaskDate;
+  });
+  console.log("tasksOnDate: ",tasksOnDate);
+  if(finishedTaskDate == "no date"){
+    return
+  }else if(tasksOnDate.length == 1){
+    console.log("deleted date: ",finishedTaskDate);
+    let dateIndex = taskDates.findIndex((taskDate)=>{
+      return taskDate.toLowerCase() == finishedTaskDate;
+    });
+    console.log(dateIndex);
+    if(dateIndex != -1){
+      taskDates.splice(dateIndex,1);
+      localStorage.setItem('taskDates', JSON.stringify(taskDates));
+      insertTaskDates();
+    }
+  }
+}
 function toggleMobileDatesContainer(){
   taskDatesMobile_container.classList.toggle("p-2");
   taskDatesMobile_container.classList.toggle("pb-20");
   taskDatesMobile_container.classList.toggle("h-0");
   taskDatesMobile_container.classList.toggle("h-80");
 }
+let triggeredChosenDateOnReload = false;
 function chosenDate(theDate){
   const taskDateElements = document.querySelectorAll(".taskDate");
   taskDateElements.forEach(el =>{
@@ -147,47 +180,22 @@ function chosenDate(theDate){
     }
   })
   let theDateLowerCase = theDate.toLowerCase();
-  if(theDate != 'index'){
+  if(theDateLowerCase != 'index'){
     let tasksOnDate = tasks.filter(task=>{
       return task.dueDate == theDateLowerCase;
-    })
+    });
     createTasks(tasksOnDate);
+    toggleMobileDatesContainer();
   }else {
     createTasks(tasks);
+    if(triggeredChosenDateOnReload){
+      toggleMobileDatesContainer();
+    }else {
+      triggeredChosenDateOnReload = true;
+    }
   }
 }
 chosenDate('index');
-
-function openTaskDesc(taskId,openDescBtn){
-  let TheTaskContainer = document.getElementById(`task${taskId}_container`);
-  let taskDescHeight = document.getElementById(`task${taskId}_desc`).clientHeight;
-  if(parseInt(TheTaskContainer.style.maxHeight) == 52){
-    TheTaskContainer.style.maxHeight = `${60 + taskDescHeight}px`;
-    setTimeout(() => {
-      openDescBtn.classList.add("rotate-180");
-    }, 200);
-  }else {
-    TheTaskContainer.style.maxHeight = `52px`;
-    setTimeout(() => {
-      openDescBtn.classList.remove("rotate-180");
-    }, 300);
-  }
-}
-function openSubTaskDesc(taskId,openDescBtn){
-  let TheTaskContainer = document.getElementById(`task${taskId}_container`);
-  let taskDescHeight = document.getElementById(`task${taskId}_desc`).clientHeight;
-  if(parseInt(TheTaskContainer.style.maxHeight) == 52){
-    TheTaskContainer.style.maxHeight = `${60 + taskDescHeight}px`;
-    setTimeout(() => {
-      openDescBtn.classList.add("rotate-180");
-    }, 200);
-  }else {
-    TheTaskContainer.style.maxHeight = `52px`;
-    setTimeout(() => {
-      openDescBtn.classList.remove("rotate-180");
-    }, 300);
-  }
-}
 
 // task and user's info are in task.js
 function completeTask(xpAmount = 0, taskId) {
@@ -199,17 +207,43 @@ function completeTask(xpAmount = 0, taskId) {
   }
   // remove the task object from tasks array
   console.log("task id:", taskId);
-  if(tasks.length >1 && !taskId.includes("sub")){
+  if(tasks.length >1 && !taskId.includes("sub") && taskId !=1){
     let index = tasks.findIndex(clickedTask => clickedTask.task_id == taskId);
     console.log("task index: " + index);
+    console.log(tasks[index].taskStatsGains);
     if(index != undefined && index != -1){
+      if(tasks[index].taskStatsGains){
+        console.log("gain stats triggered | condition 1");
+        increaseStats(tasks[index].taskStatsGains);
+      }
+      if(tasks[index].rewardId){
+        let taskReward =  rewardsImages.find(img => img.id == tasks[index].rewardId);
+        if(taskReward.inventoryState){
+          selectRewardImage(tasks[index].rewardId);
+        }
+        deleteImageById(tasks[index].rewardId);
+      }
+      deleteTaskDate(tasks[index].dueDate);
       completedTasks.push(tasks.splice(index, 1)[0]);
-      console.log('first complete condition: '+completedTasks);
+      console.log('first complete condition: ',completedTasks);
     }
   }else if(tasks.length == 1 && taskId !=1 && !taskId.includes("sub")){
     completedTasks.push(tasks[0]);
+    
+    if(tasks[0].taskStatsGains){
+      console.log("gain stats triggered | condition 2");
+      increaseStats(tasks[0].taskStatsGains);
+    }
+    if(tasks[0].rewardId){
+      let taskReward =  rewardsImages.find(img => img.id == tasks[0].rewardId);
+      if(taskReward.inventoryState){
+        selectRewardImage(tasks[0].rewardId);
+      }
+      deleteImageById(tasks[0].rewardId);
+    }
+    deleteTaskDate(tasks[0].dueDate);
     tasks = [];
-    console.log("second complete condition: "+completedTasks);
+    console.log("second complete condition: ",completedTasks);
   }else if(taskId == 1){
     completedTasks.push({taskTitle: 'Create Your First Task', taskDesc: 'Create yor first task and start your journey!', taskXP: 1000, taskPriority: 1, subTasks: [], createdAt: null, dueDate: null, task_id: 1});
     localStorage.setItem('checked_first_task', true);
@@ -280,7 +314,7 @@ function completeTask(xpAmount = 0, taskId) {
                 localStorage.setItem("remain_xp", targetTotalXP);
                 localStorage.setItem('myTasks', JSON.stringify(tasks));
                 localStorage.setItem('completed_tasks', JSON.stringify(completedTasks));
-              return 
+              return
             }
             xpAmount_p.innerText = start;
             requestAnimationFrame(smallStep);
@@ -312,7 +346,7 @@ function completeTask(xpAmount = 0, taskId) {
     step();
   }
 
-  // Animate toward 1000 if leveling
+  // Animate toward 1000 if leveling up
   if (levelsGained > 0) {
     animateXP(currentXP, 1000);
   } else {
@@ -321,31 +355,52 @@ function completeTask(xpAmount = 0, taskId) {
   }
 
   // dont let the task to activate again
-  let taskPreventionLayer = document.getElementById(`task${taskId}_preventionLayer`)
+  let taskPreventionLayer = document.getElementById(`task${taskId}_preventionLayer`);
   taskPreventionLayer.classList.remove("hidden");
   taskPreventionLayer.classList.add("block");
 }
+
+function increaseStats(statsGainArray){
+  statsGainArray.forEach(gainedStat =>{
+    user_stats = user_stats.map(static =>{
+      if(static.statName == gainedStat.statName){
+        return {statName: gainedStat.statName, statLevel: parseInt(static.statLevel) + parseInt(gainedStat.statLevel)};
+      }
+      return static
+    })
+  })
+  localStorage.setItem("user_stats",JSON.stringify(user_stats));
+  console.log(user_stats);
+}
 function deleteTask(taskId){
+  console.log("task_id passed to delete: " + taskId);
   if(taskId == 1){
-    console.log(taskId);
     localStorage.setItem('checked_first_task', true);
+    checked_first_task = true;
+    toggleTaskDetailDisplay();
+    return createTasks(tasks);
+  }else if(taskId.includes('sub')){
+      let mainTaskId = parseInt(taskId[0]);
+      let foundMainTaskIndex = tasks.findIndex(task=>task.task_id == mainTaskId);
+      let foundSubTaskIndex = tasks[foundMainTaskIndex].subTasks.findIndex(subTask => subTask.id == taskId);
+      tasks[foundMainTaskIndex].subTasks.splice(foundSubTaskIndex,1);
+      console.log("is this triggered")
+  }else {
+    let foundTaskIndex = tasks.findIndex(task => task.task_id == taskId);
+    let deletedTask = tasks.splice(foundTaskIndex, 1);
+    console.log("found index to delete"+foundTaskIndex);
+    console.log(deletedTask);
+    console.log(tasks);
   }
-  document.getElementById(`task${taskId}_container`).classList.remove("border-transparent");
-  document.getElementById(`task${taskId}_container`).classList.add("border-[var(--task-border)]");
-  document.getElementById(`task${taskId}_container`).classList.add("taskShadowWithoutHover");
-  document.getElementById(`task${taskId}_container`).classList.add("scale-y-0");
-  document.getElementById(`taskClass${taskId}`).classList.add('closed');
-  setTimeout(() => {
-    document.getElementById(`task${taskId}`).classList.add("hidden");
-  }, 500);
+  localStorage.setItem('myTasks', JSON.stringify(tasks));
+  toggleTaskDetailDisplay();
+  createTasks(tasks);
 }
 function createNewTitle(levelNum){
-  console.log()
   if(levelNum !=0){
     found_title = user_titles.findLast(title => title.level <= levelNum);
     if(user_title != found_title.title){
       user_title = found_title.title;
-      localStorage.setItem("user_title", user_title);
       let titleContainer = document.getElementById("titleContainer");
       let oldTitle = document.querySelector(".oldTitle");
       let NewTitle = document.createElement("div");
@@ -356,59 +411,375 @@ function createNewTitle(levelNum){
       oldTitle.classList.add("-top-[20px]");
       setTimeout(() => {
         NewTitle.classList.remove("top-[22px]");
-        NewTitle.classList.add("top-0");  
+        NewTitle.classList.add("top-0");
       }, 100);
       setTimeout(() => {
         oldTitle.remove();
       }, 1000);
+      localStorage.setItem("user_title",user_title);
     }
   }
 }
 
+//stats functions
+function toggleSelectedStatsDisplay(){
+  let selectedStatsDisplayContainer = document.getElementById("selectedStatsDisplayContainer");
+  selectedStatsDisplayContainer.classList.toggle("hidden");
+  selectedStatsDisplayContainer.classList.toggle("block");
+}
+let setStatsBgOnce = false;
+function toggleStatsDisplay(){
+  // resize stats window backgrounds
+  if(!setStatsBgOnce){
+    let statsBgs = [...document.getElementsByClassName("statsBg")];
+    let statsBgSize = Math.ceil(window.innerHeight*2/3);
+    statsBgs.forEach( bg => bg.style.height = `${statsBgSize}px`)
+    console.log(statsBgs);
+    setStatsBgOnce = true;
+    console.log(Math.ceil(window.innerHeight/3));
+  } 
+  let statsOutside = document.getElementById("statsOutside");
+  let statsContainer = document.getElementById("statsContainer");
+  let statsBox = document.getElementById("statsBox");
+  if(statsContainer.classList.contains("hidden")){
+    // first toggle hidden class
+    statsContainer.classList.toggle("hidden");
+    statsOutside.classList.toggle("hidden");
+    // before opening the container, add user stats
+    statsBox.innerHTML = "";
+    user_stats.forEach(stat=>{
+      let levelFromZero = 0;
+      let frameCount = 0;
+      let framesToSkip = 6;
+      let maxLevelGained = null;
+      statsBox.innerHTML += `
+      <div>
+        <div>
+            <span class="z-10">${stat.statName}:</span>
+            <span id="${stat.statName}_${stat.statLevel}" class="z-10">0</span>
+            <div class="w-4/5 h-4 bg-blue-500/80 blur-sm absolute right-1/2 translate-x-1/2 top-2 rounded-full z-0"></div>
+        </div>
+      </div>
+      `;
+      setTimeout(() => {
+        let statLevelDom = document.getElementById(`${stat.statName}_${stat.statLevel}`);
+        function increasingNum(statLevelGains = null){
+          // console.log(statLevelDom);
+            if(!maxLevelGained){
+                maxLevelGained = levelFromZero + statLevelGains;
+            }
+            frameCount++;
+            if(frameCount >= framesToSkip){
+                levelFromZero++;
+                statLevelDom.innerHTML = levelFromZero;
+                frameCount = 0;
+            }
+            if(levelFromZero<maxLevelGained){
+                requestAnimationFrame(()=>increasingNum(statLevelGains));
+            }else {
+                levelFromZero= 0;
+                return maxLevelGained = null;
+            }
+        }
+        requestAnimationFrame(()=>increasingNum(stat.statLevel));
+      }, 700);
+    })
+    setTimeout(() => {
+      statsContainer.classList.toggle("w-[0%]");
+      statsContainer.classList.toggle("xl:w-3/5");
+      statsContainer.classList.toggle("sm:w-4/5");
+      statsContainer.classList.toggle("w-11/12");
+      statsOutside.classList.toggle("opacity-0");
+      statsOutside.classList.toggle("opacity-100");
+    }, 10);
+    setTimeout(() => {
+      statsContainer.classList.toggle("h-2");
+      statsContainer.classList.toggle("h-2/3");
+    }, 310);
+  }else {
+    statsContainer.classList.toggle("h-2");
+    statsContainer.classList.toggle("h-2/3");
+    setTimeout(() => {
+      statsContainer.classList.toggle("w-[0%]");
+      statsContainer.classList.toggle("xl:w-3/5");
+      statsContainer.classList.toggle("sm:w-4/5");
+      statsContainer.classList.toggle("w-11/12");
+      statsOutside.classList.toggle("opacity-0");
+      statsOutside.classList.toggle("opacity-100");
+    }, 310);
+    setTimeout(() => {
+      statsContainer.classList.toggle("hidden");
+      statsOutside.classList.toggle("hidden");
+    }, 800);
+  }
+}
+// stats form
+let formStatsContainer = document.getElementById("formStatsContainer");
+let selectedStatsBtnAndInfoContainer = document.getElementById("selectedStatsBtnAndInfoContainer");
+let selectedStatsDisplayContainer = document.getElementById("selectedStatsDisplayContainer");
+let selectedStatsDisplay = document.getElementById("selectedStatsDisplay");
+function toggleStatsForm(){
+  let statsFrom = document.getElementById("statsForm");
+  let statsFromOutside = document.getElementById("statsFromOutside");
+  statsFromOutside.classList.toggle("hidden");
+  setTimeout(() => {
+    statsFromOutside.classList.toggle("opacity-0");
+    statsFromOutside.classList.toggle("opacity-50");
+  }, 1);
+  statsFromOutside.classList.toggle("block");
+  statsFrom.classList.toggle("scale-y-0");
+  statsFrom.classList.toggle("scale-y-100");
+  insertStats();
+}
+function deleteStat(){
+  const deleteStatInput = document.getElementById("deleteStatInput")
+  const StatIndex = user_stats.findIndex(stat=> stat.statName == deleteStatInput.value);
+  if(StatIndex == -1){
+    deleteStatInput.classList.add("shakingAnimation");
+    setTimeout(() => {
+      deleteStatInput.classList.remove("shakingAnimation");
+    }, 210);
+    deleteStatInput.placeholder = "stat didn't exist!";
+    return
+  }
+  user_stats.splice(StatIndex,1);
+  localStorage.setItem("user_stats",JSON.stringify(user_stats));
+  deleteStatInput.placeholder = "delete stat";
+  insertStats();
+}
+function addNewStat(){
+  let newStatInput = document.getElementById("newStatInput");
+  if(newStatInput.value == "" || newStatInput.value == " "){
+    newStatInput.classList.add("shakingAnimation");
+    setTimeout(() => {
+      newStatInput.classList.remove("shakingAnimation");
+    }, 210);
+    return
+  }
+  let statExistingCheck = false;
+  user_stats.forEach((stat)=> {
+    if(stat.statName == newStatInput.value){
+      statExistingCheck = true;
+      newStatInput.classList.add("shakingAnimation");
+      setTimeout(() => {
+        newStatInput.classList.remove("shakingAnimation");
+      }, 210);
+      newStatInput.value = "";
+      newStatInput.placeholder = "stat exists!";
+      return 
+    }
+  })
+  if(!statExistingCheck){
+    newStatInput.placeholder = "new stat";
+    if(user_stats.length == 0) formStatsContainer.innerHTML = "";
+    let newStatObject = {
+      statName: newStatInput.value,
+      statLevel: 0
+    }
+    newStatInput.value = "";
+    user_stats.push(newStatObject);
+    localStorage.setItem("user_stats",JSON.stringify(user_stats));
+    let newStat = document.createElement("template");
+    newStat.innerHTML = `
+      <div id="${newStatObject.statName}Container" class="w-fit py-1 px-2 border-2 border-transparent hover:-translate-y-0.5 hover:border-blue-300 transition-all duration-300 rounded-md flex justify-between items-center gap-2 text-lg relative">
+          <div id="${newStatObject.statName}InfoBox" class="flex items-center">
+              <div class="w-[160px] flex justify-between items-center">
+                  <div class="w-3 h-3 rotate-45 bg-gradient-to-tr from-[var(--stat-list-icon-start)] via-[var(--stat-list-icon-mid)] to-[var(--stat-list-icon-end)]"></div>
+                  <div class="w-[90px] shrink-0 overflow-hidden text-ellipsis ml-2">${newStatObject.statName}</div>
+                  <div>:</div>
+                  <div class="w-[38px] shrink-0 overflow-hidden text-ellipsis ml-2">${newStatObject.statLevel}</div>
+              </div>
+              <div class="flex items-center gap-2 ml-2 mr-4">
+                  <button stat-name="${newStatObject.statName}" class="subtract cursor-pointer">-</button>
+                  <input id="${newStatObject.statName}LevelInput" placeholder="0" class="w-8 appearance-none outline-0 border-b border-[var(--stat-level-input-border)]/50" value="0" type="number">
+                  <button stat-name="${newStatObject.statName}" class="add cursor-pointer">+</button>
+              </div>
+          </div>
+          <button id="${newStatObject.statName}" class="selectBtn w-6 h-6 bg-white rounded-full statCheckIcon cursor-pointer relative transition-all duration-300 active:scale-90">
+          </button>
+      </div>  
+    `;
+    formStatsContainer.appendChild(newStat.content);
+    insertStatsFormCheckIcons();
+    console.log(user_stats);
+  }
+}
+// this variable is for stat in the add form
+let selectedStats = [];
+function insertStats(){
+  if(user_stats.length == 0){
+    formStatsContainer.innerHTML = `
+    <div class="w-fit flex items-center gap-2 text-lg cursor-pointer">
+        <div class="w-3 h-3 rotate-45 bg-gradient-to-tr from-[var(--stat-list-icon-start)] via-[var(--stat-list-icon-mid)] to-[var(--stat-list-icon-end)]"></div>
+        <div>no stats yet!</div>
+    </div>
+    `;
+  }else{
+    formStatsContainer.innerHTML = "";
+    user_stats.forEach((stat)=>{
+      let checkIfSelected = selectedStats.findIndex((selectedstat)=> selectedstat.statName == stat.statName);
+      formStatsContainer.innerHTML+= `
+      <div id="${stat.statName}Container" class="w-fit py-1 px-2 border-2 border-transparent ${checkIfSelected != -1 ? 'opacity-55': ''} ${checkIfSelected != -1 ? '': 'hover:-translate-y-0.5'} hover:border-blue-300 transition-all duration-300 rounded-md flex justify-between items-center gap-2 text-lg relative">
+        <div id="${stat.statName}InfoBox" class="flex items-center">
+            <div class="w-[160px] flex justify-between items-center">
+                <div class="w-3 h-3 rotate-45 bg-gradient-to-tr from-[var(--stat-list-icon-start)] via-[var(--stat-list-icon-mid)] to-[var(--stat-list-icon-end)]"></div>
+                <div class="w-[90px] shrink-0 overflow-hidden text-ellipsis ml-2">${stat.statName}</div>
+                <div>:</div>
+                <div class="w-[38px] shrink-0 overflow-hidden text-ellipsis ml-2">${stat.statLevel}</div>
+            </div>
+            <div class="flex items-center gap-2 ml-2 mr-4">
+                <button stat-name="${stat.statName}" class="subtract cursor-pointer">-</button>
+                <input id="${stat.statName}LevelInput" placeholder="0" class="w-8 appearance-none outline-0 border-b border-[var(--stat-level-input-border)]/50" value="0" type="number">
+                <button stat-name="${stat.statName}" class="add cursor-pointer">+</button>
+            </div>
+        </div>
+        <button id="${stat.statName}" class="selectBtn w-6 h-6 bg-white rounded-full statCheckIcon cursor-pointer relative transition-all duration-300 active:scale-90">
+        </button>
+    </div>  
+      `;
+    });
+    insertStatsFormCheckIcons();
+  }
+}
+// writing the selected stats in the task form & + and - functions
+formStatsContainer.addEventListener('click',(e)=>{
+  //writing the stats
+  if(e.target.classList.contains("selectBtn")){
+    let selectedStat = document.getElementById(`${e.target.id}Container`);
+    let statInfoBox = document.getElementById(`${e.target.id}InfoBox`);
+    let SelectedStatLevelInput = document.getElementById(`${e.target.id}LevelInput`);
+    selectedStat.classList.toggle("hover:-translate-y-0.5");
+    selectedStat.classList.toggle("opacity-55");
+    statInfoBox.classList.toggle("pointer-events-none");
+    selectStat(e.target.id,SelectedStatLevelInput.value);
+    // subtract and add the stats level with - and + buttons
+  }else if(e.target.classList.contains("subtract")){
+    let statLevel = document.getElementById(`${e.target.getAttribute("stat-name")}LevelInput`);
+    statLevel.value = parseInt(statLevel.value)-1;
+    if(parseInt(statLevel.value)<0) return statLevel.value = 0;
+  }else if(e.target.classList.contains("add")){
+    let statLevel = document.getElementById(`${e.target.getAttribute("stat-name")}LevelInput`);
+    statLevel.value = parseInt(statLevel.value)+1;
+  }
+})
+function selectStat(statInputId,statInputLevel){
+  let selectedStatsBtnAndInfo = document.getElementById("selectedStatsBtnAndInfo");
+  let statsIsSelected = selectedStats.findIndex(stat => stat.statName == statInputId);
+  let selectedStatsDisplay = document.getElementById("selectedStatsDisplay");
+  console.log("statIndex: " + statsIsSelected);
+  if(statsIsSelected == -1){
+    selectedStats.push({statName: statInputId, statLevel: statInputLevel});
+    if(selectedStatsBtnAndInfo.classList.contains("hidden")){
+      selectedStatsBtnAndInfo.classList.remove("hidden");
+      selectedStatsBtnAndInfo.classList.add("flex");
+    }
+    document.getElementById("selectedStatsBtnName").innerHTML = selectedStats[0].statName;
+    document.getElementById("selectedStatsBtnLevel").innerHTML = selectedStats[0].statLevel;
+    if(selectedStats.length>1){
+      selectedStatsDisplay.innerHTML = "";
+      let remainingStats = selectedStats.slice(1,selectedStats.length);
+      remainingStats.forEach(stat=>{
+        selectedStatsDisplay.innerHTML += `
+          <div>
+              <span class="overflow-hidden text-ellipsis text-start w-8">${stat.statName}</span>
+              <span>+</span>
+              <span class="overflow-hidden text-ellipsis w-8">${stat.statLevel}</span>
+          </div>
+        `;
+      })
+    }
+    console.log(selectedStats);
+  }else {
+    selectedStats.splice(statsIsSelected,1);
+    if(selectedStats.length == 0){
+      selectedStatsBtnAndInfo.classList.remove("flex");
+      selectedStatsBtnAndInfo.classList.add("hidden");
+    }
+    console.log(selectedStats);
+    if(selectedStats.length == 0){
+      return
+    }
+    document.getElementById("selectedStatsBtnName").innerHTML = selectedStats[0].statName;
+    document.getElementById("selectedStatsBtnLevel").innerHTML = selectedStats[0].statLevel;
+    if(selectedStats.length>1){
+      selectedStatsDisplay.innerHTML = "";
+      let remainingStats = selectedStats.slice(1,selectedStats.length);
+      remainingStats.forEach(stat=>{
+        selectedStatsDisplay.innerHTML += `
+          <div>
+              <span class="overflow-hidden text-ellipsis text-start w-8">${stat.statName}</span>
+              <span>+</span>
+              <span class="overflow-hidden text-ellipsis w-8">${stat.statLevel}</span>
+          </div>
+        `;
+      })
+    }
+  }
+}
+
+// the rest of the reward codes are in rewardsImgs.js
+
 // add_task form functions
 let addFormStatus = false;
+let addForm = document.getElementById("addForm");
 function showAddForm(){
-  addFormStatus = !addFormStatus;
-  const addForm = document.getElementById("addForm");
   const addFormOutside = document.getElementById("addFormOutside");
+  const addFormContent = document.getElementById("addFormContent");
+  const addFormBtn = document.getElementById("addFormBtn");
   const mobileMenu = document.getElementById("mobileMenu");
   // hide mobile menu
-  mobileMenu.classList.toggle("h-[50px]");
-  mobileMenu.classList.toggle("h-0");
-  mobileMenu.classList.toggle("pt-2");
-  mobileMenu.classList.toggle("pb-1");
-  mobileMenu.classList.toggle("px-3");
-  mobileMenu.classList.toggle("border-[var(--footer-border)]");
-  mobileMenu.classList.toggle("border-transparent");
+  // mobileMenu.classList.toggle("h-[50px]");
+  // mobileMenu.classList.toggle("h-0");
+  // mobileMenu.classList.toggle("pt-2");
+  // mobileMenu.classList.toggle("pb-1");
+  // mobileMenu.classList.toggle("px-3");
+  // mobileMenu.classList.toggle("border-[var(--footer-border)]");
+  // mobileMenu.classList.toggle("border-transparent");
 
   // show add task form
-  if(addForm.classList.contains("hidden")){
+  if(!addFormStatus){
+    addFormOutside.classList.toggle("hidden");
+    addForm.classList.toggle("hidden");
+    setTimeout(() => {
+      // addForm.classList.toggle("h-0");
+      // addForm.classList.toggle("h-[280px]");
+      addForm.style.height = "280px";
+      addFormOutside.classList.toggle("opacity-0");
+      addFormOutside.classList.toggle("opacity-100");
+      addFormContent.classList.toggle("opacity-0");
+      addFormContent.classList.toggle("opacity-100");
+      addFormBtn.classList.toggle("opacity-0");
+      addFormBtn.classList.toggle("opacity-100");
+    }, 10);
     setTimeout(() => {
       addForm.classList.toggle("overflow-hidden");
-    }, 350);
+      // addForm.classList.toggle("h-[280px]");
+      // addForm.classList.toggle("h-fit");
+      addForm.style.height = "fit-content";
+    }, 320);
   }else {
     addForm.classList.toggle("overflow-hidden");
-  }
-  addFormOutside.classList.toggle("hidden");
-  addFormOutside.classList.toggle("block");
-  addForm.classList.toggle("sm:w-0");
-  addForm.classList.toggle("h-0");
-  if(addFormStatus){
-    addForm.classList.add("h-[278.4px]");
-  }
-  if(addForm.classList.contains("h-fit")){
-    addForm.classList.remove("h-fit")
-  }
-  setTimeout(() => {
-    if(addForm.classList.contains("h-[278.4px]")){
-      addForm.classList.toggle("h-[278.4px]");
-      addForm.classList.toggle("h-fit");
-    }
+    addForm.style.height = `${addForm.clientHeight}px`;
+    // addForm.classList.toggle("h-fit");
+    // addForm.classList.toggle("h-[280px]");
+    addFormOutside.classList.toggle("opacity-100");
+    addFormOutside.classList.toggle("opacity-0");
+    addFormContent.classList.toggle("opacity-0");
+    addFormContent.classList.toggle("opacity-100");
+    addFormBtn.classList.toggle("opacity-0");
+    addFormBtn.classList.toggle("opacity-100");
+    setTimeout(() => {
+      // addForm.classList.toggle("h-[280px]");
+      // addForm.classList.toggle("h-0");
+      addForm.style.height = "0px";
+      addFormOutside.classList.toggle("hidden");
     }, 310);
-  addForm.classList.toggle("sm:h-fit");
-  addForm.classList.toggle("sm:rounded-full");
-  addForm.classList.toggle("sm:w-4/5");
-  addForm.classList.toggle("sm:rounded-lg");
+    setTimeout(() => {
+      addForm.classList.toggle("hidden");
+    }, 610);
+  }
+  //   addForm.classList.add("h-[278.4px]");
+  addFormStatus = !addFormStatus;
 }
 
 // add sub tasks functions
@@ -542,25 +913,19 @@ chosenPriority.innerHTML = `
   priority_container.classList.toggle("w-[183px]");
   priority_container.classList.toggle("w-0");
 }
-let addFormDates = ['Today', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday' , 'Saturday','Custom date'];
-let dateOptions = [...document.querySelectorAll(".addFormDateValue")]
+let addFormDates = ['No Date','Today', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday' , 'Saturday','Custom date'];
+let dateOptions = [...document.querySelectorAll(".addFormDateValue")];
 dateOptions.forEach((dateValue,index)=>{
   dateValue.addEventListener("click",() => changeTaskDate(addFormDates[index]))
-})
+});
 let mobileCalenderOptions = [...document.querySelectorAll(".mobileCalenderValue")]
 mobileCalenderOptions.forEach((dateValue,index)=>{
   dateValue.addEventListener("click",() => changeTaskDate(addFormDates[index]))
-})
+});
 function toggleDueDateDisplay(){
-  if(window.innerWidth > 640){
-    let Duodate_options_container = document.getElementById("Duodate_options_container");
-    Duodate_options_container.classList.toggle("hidden");
-    Duodate_options_container.classList.toggle("block");
-  }else {
-    let mobileCalender = document.getElementById("mobileCalender");
-    mobileCalender.classList.toggle("h-0");
-    mobileCalender.classList.toggle("h-[280px]");
-  }
+  let Duodate_options_container = document.getElementById("Duodate_options_container");
+  Duodate_options_container.classList.toggle("hidden");
+  Duodate_options_container.classList.toggle("block");
 }
 function changeTaskDate(chosenDate){
   let taskDateInput = document.getElementById("custom_date_input");
@@ -615,6 +980,7 @@ function hidePlaceholder(){
 }
 
 // add the task
+// the reward that the task has, is written in rewardsImgs.js
 function addTask(){
   // Get values
   const xpAmount = document.getElementById("add_task_xp_amount").value;
@@ -623,15 +989,40 @@ function addTask(){
   let taskDate;
   if(document.getElementById("chosenDueDate").innerText.toLowerCase() == 'custom date'){
     taskDate = document.getElementById("custom_date_input").value.toLowerCase();
+    taskDates.push(taskDate);
+    localStorage.setItem('taskDates', JSON.stringify(taskDates));
   }else {
     taskDate = document.getElementById("chosenDueDate").innerText.toLowerCase();
   }
   if(taskTitle.value == ''){
     taskTitle.classList.add("shakingAnimation");
     setTimeout(() => {
-      taskTitle.classList.remove("shakingAnimation");      
+      taskTitle.classList.remove("shakingAnimation");
     }, 1000);
    return console.log("task needs a title");
+  }
+  //create task id
+  let idCheck = false;
+  function makeTaskId(){
+    if(tasks.length > 0){
+      let checkIfIdexists = tasks.find(task => task.task_id == taskNumber);
+      if(checkIfIdexists != -1 && checkIfIdexists != undefined){
+        taskNumber++;
+        makeTaskId();
+      }else{
+        idCheck = true;
+        return;
+      }
+    }else {
+      return idCheck = true;
+    }
+  }
+  if(!idCheck){
+    makeTaskId();
+  }
+  if(temporaryImageObject){
+    let rewardImgId = temporaryImageObject.id;
+    console.log("reward image id: ",rewardImgId);
   }
   // Create task
   let newTask = {
@@ -640,27 +1031,32 @@ function addTask(){
     taskXP: xpAmount || 0,
     taskPriority: priority,
     subTasks: [...addedSubTasksArray],
+    taskStatsGains: [...selectedStats],
     createdAt: new Date().toISOString(),
     dueDate: taskDate || 'today',
     task_id: taskNumber,
+    rewardId: rewardImgId,
   };
-  tasks.push(newTask)
+  handleRewardButton();
+  tasks.push(newTask);
   // Reset form
   console.log(tasks);
+  insertTaskDates();
   createNewTask(newTask);
   localStorage.setItem('myTasks', JSON.stringify(tasks));
   localStorage.setItem('user_level',document.getElementById('levelNumber').innerText);
   resetTaskForm();
   subTasksArray = [];
   taskNumber++;
+  localStorage.setItem("taskNumberSoFar",taskNumber);
 }
-
 function resetTaskForm() {
   document.getElementById("add_task_xp_amount").value = '';
   document.getElementById("taskTitle").value = '';
   document.getElementById("taskDesc").value = '';
   document.getElementById("custom_date_input").value = '';
   document.getElementById("chosenDueDate").innerText = 'Today';
+  document.getElementById("rewardName").innerHTML = '';
   subtaskNum = 0;
   if(subTasksArray.length > 0){
     subTasksArray.forEach((subT,index) =>{
@@ -670,11 +1066,286 @@ function resetTaskForm() {
   if(parseInt(subTasksContainer.style.height) > 0){
       subTasksContainerHeight = 0;
       subTasksContainer.style.height = `0px`;
+      addForm.style.height = `${addForm.clientHeight}px`;
+      addForm.style.height = `280px`;
+      setTimeout(() => {
+        addForm.style.height = "fit-content";
+      }, 301);
   }
   addedSubTasksArray = [];
   if(document.getElementById("taskPriority")){
     document.getElementById("taskPriority").remove();
   }
   priority = 4;
-  
+  // remove stats
+  selectedStats = [];
+  let selectedStatsBtnAndInfo = document.getElementById("selectedStatsBtnAndInfo");
+  if(selectedStatsBtnAndInfo.classList.contains("flex")){
+    selectedStatsBtnAndInfo.classList.remove("flex");
+    selectedStatsBtnAndInfo.classList.add("hidden");
+  }
+}
+
+// task details and edit
+let detailsBoxStatus = false;
+function toggleTaskDetailDisplay(taskId){
+  detailsBoxStatus = !detailsBoxStatus;
+  let taskDetailsAndEdit = document.getElementById("taskDetailsAndEdit");
+  // let taskDetailsWrapper = document.getElementById("taskDetailsWrapper");
+  let taskDetailsClipWrapper = document.getElementById("taskDetailsClipWrapper");
+  let taskDetailsWrapperTopScroll = document.getElementById("taskDetailsWrapperTopScroll");
+  let taskDetailsWrapperBottomScroll = document.getElementById("taskDetailsWrapperBottomScroll");
+  let taskDetailsOutside = document.getElementById("taskDetailsOutside");
+  // data elements
+  let taskDetail_title = document.getElementById("taskDetail_title");
+  let mainTaskTitleOfSubtask = document.getElementById("mainTaskTitleOfSubtask");
+  let taskDetailTextArea = document.getElementById("taskDetailTextArea");
+  let taskDetail_date = document.getElementById("taskDetail_date");
+  let taskDetailXpInput = document.getElementById("taskDetailXpInput");
+  let taskDetailXpInputContainer = document.getElementById("taskDetailXpInputContainer");
+  let editTaskBtnContainer = document.getElementById("editTaskBtnContainer");
+  let taskDetail_reward_container = document.getElementById("taskDetail_reward_container")
+  let taskDetail_rewardImg = document.getElementById("taskDetail_rewardImg");
+  let taskDetail_rewardName = document.getElementById("taskDetail_rewardName");
+  let addToInventory_checkIcon = document.getElementById("addToInventory_checkIcon");
+  // open and close task detail with inserted data
+  if(detailsBoxStatus){
+    if(taskDetail_date.classList.contains("hidden")){
+      mainTaskTitleOfSubtask.classList.add("hidden");
+      mainTaskTitleOfSubtask.classList.remove("block");
+      taskDetail_date.classList.remove("hidden");
+      taskDetail_date.classList.add("block");
+      taskDetailTextArea.classList.remove("hidden");
+      taskDetailTextArea.classList.add("block");
+      taskDetailXpInputContainer.classList.remove("mt-4");
+    }
+    //insert data of the task first
+    console.log("task id: " + taskId);
+    if(taskId == 1){
+      taskDetail_title.value = `Create Your First Task`;
+      taskDetailTextArea.value = `Create your first task and start your journey!`;
+      addDetailsPriority(1);
+      taskDetail_date.value = `No Date`;
+      taskDetailXpInput.value = "1000";
+      if(!taskDetail_reward_container.classList.contains("hidden")){
+        taskDetail_reward_container.classList.add("hidden")
+      }
+      editTaskBtnContainer.innerHTML = `
+      <div>
+          <button type="button" onclick="deleteTask(1)" class="pb-0.5 px-1 rounded-md text-[var(--content-text)] text-sm border border-[var(--content-text)] cursor-pointer">Delete</button>
+          <button onclick="editTask()" type="button" class="pb-0.5 px-1 rounded-md text-[var(--content-text)] text-sm border border-[var(--content-text)] cursor-pointer opacity-50">Edit</button>
+      </div>`;
+      //insert subtask data
+    }else if(taskId.includes('sub')){
+      let mainTaskId = parseInt(taskId[0]);
+      let foundMainTask = tasks.find(task=>task.task_id == mainTaskId);
+      let foundSubTask = foundMainTask.subTasks.find(subTask => subTask.id == taskId);
+      mainTaskTitleOfSubtask.innerText = `${foundMainTask.taskTitle}`;
+      mainTaskTitleOfSubtask.classList.remove("hidden");
+      mainTaskTitleOfSubtask.classList.add("block");
+      taskDetail_title.value = foundSubTask.title;
+      taskDetailTextArea.classList.add("hidden");
+      addDetailsPriority(taskId);
+      taskDetail_date.classList.add("hidden");
+      taskDetailXpInputContainer.classList.add("mt-4");
+      taskDetailXpInput.value = foundSubTask.xp;
+      if(!taskDetail_reward_container.classList.contains("hidden")){
+        taskDetail_reward_container.classList.add("hidden")
+      }
+      editTaskBtnContainer.innerHTML = `
+      <div>
+        <button type="button" onclick="deleteTask('${taskId}')" class="pb-0.5 px-1 rounded-md text-[var(--content-text)] text-sm border border-[var(--content-text)] cursor-pointer">Delete</button>
+        <button onclick="editTask('${taskId}')" type="button" class="pb-0.5 px-1 rounded-md text-[var(--content-text)] text-sm border border-[var(--content-text)] cursor-pointer">Edit</button>
+      </div>`;
+      //insert data of the selected task
+    }else {
+      let foundTask = tasks.find(task => task.task_id == taskId);
+      let task_rewardInfo = getImageById(foundTask.rewardId);
+      if(task_rewardInfo){
+        if(taskDetail_reward_container.classList.contains("hidden")){
+          taskDetail_reward_container.classList.remove("hidden")
+        }
+        console.log(task_rewardInfo.inventoryState);
+        if(task_rewardInfo.inventoryState){
+          if(addToInventory_checkIcon.classList.contains("hidden")){
+            addToInventory_checkIcon.classList.remove("hidden");
+          }
+        }else{
+          if(!addToInventory_checkIcon.classList.contains("hidden")){
+            addToInventory_checkIcon.classList.add("hidden");
+          }
+        }
+        taskDetail_rewardImg.src = task_rewardInfo.img;
+        taskDetail_rewardName.innerHTML = task_rewardInfo.fileName;
+      }
+      taskDetail_title.value = foundTask.taskTitle;
+      taskDetailTextArea.value = foundTask.taskDesc;
+      addDetailsPriority(foundTask.taskPriority);
+      taskDetail_date.value = foundTask.dueDate;
+      taskDetailXpInput.value = foundTask.taskXP;
+      // console.log(foundTask);
+      editTaskBtnContainer.innerHTML = `
+      <div>
+        <button type="button" onclick="deleteTask('${taskId}')" class="pb-0.5 px-1 rounded-md text-[var(--content-text)] text-sm border border-[var(--content-text)] cursor-pointer">Delete</button>
+        <button onclick="editTask(${taskId})" type="button" class="pb-0.5 px-1 rounded-md text-[var(--content-text)] text-sm border border-[var(--content-text)] cursor-pointer">Edit</button>
+      </div>
+      <div onclick="toggleTaskDetailStatsDisplay()" class="w-[120px] py-1 px-3 bg-[var(--form-stats-Btn-bg)] rounded-md flex justify-between items-center gap-2 text-center relative">
+          <div id="selectedStatsBtn" class="overflow-hidden text-ellipsis cursor-default">
+              <div class="flex">
+                  <p id="taskDetailStatsBtnName" class="overflow-hidden text-ellipsis max-w-10"></p>
+                  <span>+</span>
+                  <span id="taskDetailStatsBtnLevel" class="overflow-hidden text-ellipsis max-w-10"></span>
+              </div>
+          </div>
+          <span class="transform rotate-90">
+              <svg width="10px" height="10px" viewBox="0 0 1024 1024" class="icon" version="1.1" xmlns="http://www.w3.org/2000/svg" fill="currentColor" stroke="currentColor" stroke-width="102.4">
+
+                  <g id="SVGRepo_bgCarrier" stroke-width="0"/>
+                  
+                  <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"/>
+                  
+                  <g id="SVGRepo_iconCarrier">
+                  
+                  <path d="M768 903.232l-50.432 56.768L256 512l461.568-448 50.432 56.768L364.928 512z" fill="currentColor"/>
+                  
+                  </g>
+                  
+              </svg>
+          </span>
+          <div id="taskDetailStatsDisplayContainer" class="w-[120px] absolute -top-[164px] left-0 shadow-sm shadow-blue-400 rounded-md gap-1 overflow-hidden z-50 hidden">
+              <div class="relative">
+                  <div id="taskDetailStatsDisplay" class="w-full h-40 overflow-y-auto statsScrollbar pb-7 px-2 bg-[var(--form-stats-Btn-bg)] [&>div]:pt-2 [&>div]:flex [&>div]:justify-center [&>div]:gap-1">
+                      
+                  </div>
+                  <!-- bottom arrow svg -->
+                  <div class="w-full p-2 bg-blue-950 flex justify-center transition-all duration-300 text-blue-300 hover:text-gray-50 [&>svg]:transform [&>svg]:-rotate-90 absolute bottom-0 right-0">
+                      <svg width="10px" height="10px" viewBox="0 0 1024 1024" class="icon" version="1.1" xmlns="http://www.w3.org/2000/svg" fill="currentColor" stroke="currentColor" stroke-width="102.4">
+
+                          <g id="SVGRepo_bgCarrier" stroke-width="0"/>
+                          
+                          <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"/>
+                          
+                          <g id="SVGRepo_iconCarrier">
+                          
+                          <path d="M768 903.232l-50.432 56.768L256 512l461.568-448 50.432 56.768L364.928 512z" fill="currentColor"/>
+                          
+                          </g>
+                          
+                      </svg>
+                  </div>
+              </div>
+          </div>
+      </div>
+      `;
+      if(foundTask.taskStatsGains.length > 0){
+        document.getElementById("taskDetailStatsBtnName").innerHTML = foundTask.taskStatsGains[0].statName;
+        document.getElementById("taskDetailStatsBtnLevel").innerHTML = foundTask.taskStatsGains[0].statLevel;
+        if(foundTask.taskStatsGains.length>1){
+          let remainingStats = foundTask.taskStatsGains.slice(1,foundTask.taskStatsGains.length);
+          let taskDetailStatsDisplay = document.getElementById("taskDetailStatsDisplay");
+          remainingStats.forEach(stat =>{
+            taskDetailStatsDisplay.innerHTML +=`
+              <div>
+                <span class="overflow-hidden text-ellipsis text-start w-8">${stat.statName}</span>
+                <span>+</span>
+                <span class="overflow-hidden text-ellipsis w-8">${stat.statLevel}</span>
+              </div>
+            `;
+          })
+        }
+      }
+    }
+    //open task detail
+    taskDetailsOutside.classList.toggle("hidden");
+    taskDetailsOutside.classList.toggle("block");
+    taskDetailsAndEdit.classList.toggle("hidden");
+    taskDetailsAndEdit.classList.toggle("block");
+    autoResizeTextArea("taskDetailTextArea");
+    autoResizeTextArea("taskDetail_title");
+    resizeXpInput();
+    setTimeout(() => {
+      taskDetailsOutside.classList.toggle("opacity-0");
+      taskDetailsOutside.classList.toggle("opacity-100");
+      taskDetailsAndEdit.classList.toggle("opacity-0");
+      taskDetailsAndEdit.classList.toggle("opacity-100");
+    }, 1);
+    setTimeout(() => {
+      taskDetailsWrapperTopScroll.classList.toggle("-top-2");
+      taskDetailsWrapperTopScroll.classList.toggle("top-1/2");
+      taskDetailsWrapperBottomScroll.classList.toggle("-bottom-2");
+      taskDetailsWrapperBottomScroll.classList.toggle("bottom-1/2");
+      taskDetailsClipWrapper.classList.toggle("closed");
+      taskDetailsClipWrapper.classList.toggle("open");
+    }, 350);
+    //this else is for opening and closing taskDetails
+  }else {
+    taskDetailsWrapperTopScroll.classList.toggle("-top-2");
+    taskDetailsWrapperTopScroll.classList.toggle("top-1/2");
+    taskDetailsWrapperBottomScroll.classList.toggle("-bottom-2");
+    taskDetailsWrapperBottomScroll.classList.toggle("bottom-1/2");
+    taskDetailsClipWrapper.classList.toggle("closed");
+    taskDetailsClipWrapper.classList.toggle("open");
+    taskDetailsOutside.classList.toggle("opacity-100");
+    taskDetailsOutside.classList.toggle("opacity-0");
+    taskDetailsAndEdit.classList.toggle("opacity-0");
+    taskDetailsAndEdit.classList.toggle("opacity-100");
+    setTimeout(() => {
+      taskDetailsOutside.classList.toggle("hidden");
+      taskDetailsOutside.classList.toggle("block");
+      taskDetailsAndEdit.classList.toggle("hidden");
+      taskDetailsAndEdit.classList.toggle("block");
+    }, 301);
+  }
+  // console.log(taskDetailsWrapper.offsetHeight);
+}
+function toggleTaskDetailStatsDisplay(){
+    let taskDetailStatsDisplayContainer = document.getElementById("taskDetailStatsDisplayContainer");
+    taskDetailStatsDisplayContainer.classList.toggle("hidden");
+    taskDetailStatsDisplayContainer.classList.toggle("block");
+}
+function ToggleTaskDetailPriorityDisplay(){
+  let taskDetail_priorities_container = document.getElementById("taskDetail_priorities_container");
+  taskDetail_priorities_container.classList.toggle("w-[143px]");
+  taskDetail_priorities_container.classList.toggle("w-0");
+}
+function editTask(taskId){
+  let taskDetail_title = document.getElementById("taskDetail_title");
+  let taskDetailTextArea = document.getElementById("taskDetailTextArea");
+  let taskDetail_date = document.getElementById("taskDetail_date");
+  let taskDetailXpInput = document.getElementById("taskDetailXpInput");
+  if(typeof(taskId)==="number"){
+    let editedValues =  {
+      taskTitle: taskDetail_title.value,
+      taskDesc: taskDetailTextArea.value,
+      taskXP: taskDetailXpInput.value,
+      taskPriority: edited_priority,
+      dueDate: taskDetail_date.value,
+    };
+    tasks = tasks.map(task => {
+      if (task.task_id === taskId) {
+        return { ...task, ...editedValues };
+      }
+      return task;
+    });
+  }else {
+    let editedValues =  {
+      title: taskDetail_title.value,
+      xp: taskDetailXpInput.value,
+    };
+    tasks = tasks.map(task => {
+    if (task.task_id == parseInt(taskId[0])) {
+      const editedSubTasks = task.subTasks.map(subtask => {
+        if (subtask.id == taskId) {
+          return { ...subtask, ...editedValues };
+        }
+        return subtask;
+      });
+      return { ...task, subTasks: editedSubTasks };
+    }
+    return task;
+  });
+  }
+  localStorage.setItem('myTasks', JSON.stringify(tasks));
+  toggleTaskDetailDisplay();
+  createTasks(tasks);
 }

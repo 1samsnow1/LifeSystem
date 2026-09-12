@@ -1,4 +1,4 @@
-const CACHE_NAME = "lifesystem-v1";
+const CACHE_NAME = "lifesystem-v1.41";
 
 const ASSETS = [
   "./",
@@ -13,10 +13,15 @@ const ASSETS = [
   "./src/components/installIcon.js",
   "./src/components/priorityIcons.js",
   "./src/components/ProfileDeleteIcon.js",
+  "./src/components/staticCheckIcon.js",
+  "./src/components/statsIcon.js",
   "./src/scripts/app.js",
   "./src/scripts/tasks.js",
   "./src/scripts/options.js",
   "./src/scripts/saveImage.js",
+  "./src/scripts/inputsUi.js",
+  "./src/scripts/inventory.js",
+  "./src/scripts/rewardsImgs.js",
 
   // optional: icons
   "./src/images/LifeSystemPNGVDesktop.png",
